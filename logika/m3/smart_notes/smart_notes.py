@@ -8,6 +8,10 @@ from PyQt5.QtWidgets import (
     QGroupBox, QButtonGroup, QRadioButton, QSpinBox, )
 
 
+def save_all():
+    with open('notes.json', 'w', encoding='utf-8') as file:
+        json.dump(notes, file, ensure_ascii=False, sort_keys=True, indent=4)
+
 app = QApplication([])
 window = QWidget()
 window.resize(800,600)
@@ -69,102 +73,51 @@ col2.addWidget(btn_tags_search)
 
 
 def show_notes():
-    key = lst_note.selectedItems()[0].text()
+    key = lst_note.currentItem().text()
     field_text.setText(notes[key]['текст'])
+
+    lst_tags.clear()
+    lst_tags.addItems(notes[key]['теги'])
 
 
 def create_notes():
-    notes_name, true = QInputDialog.getText(window, 'нотаток', 'Введіть назву нотатку:')
-    if true:
-        notes[notes_name] = {'текст': '', 'теги': []}
+    note_name, ok = QInputDialog.getText(window, "додати замітку", "назва замітки")
+    if note_name and ok:
+        lst_note.addItem(note_name)
+        notes[note_name] = {"текст" : "", "теги" : []}
+
+        save_all()
+
+
+def del_note():
+    if lst_note.currentItem():
+        key = lst_note.currentItem().text()
+        del notes[key]
+
+        field_text.clear()
+        lst_tags.clear()
         lst_note.clear()
+
         lst_note.addItems(notes)
 
+        save_all()
+
 def save_notes():
-    if lst_note.selectedItems():
-        key = lst_note.currentItem().text()
-        notes[key]['текст'] = field_text.toPlainText()
-
-        with open('notes.json', 'w', encoding='utf-8') as file:
-            json.dump(notes, file, ensure_ascii=False, indent=4)
-
-def delete_note():
-    if lst_note.selectedItems():
-        selected_note = lst_note.currentItem().text()
-        if selected_note in notes:
-            del notes[selected_note]
-            lst_note.takeItem(lst_note.currentRow())
-            field_text.clear()
-            lst_tags.clear()
-
-
-        with open('notes.json', 'w', encoding='utf-8') as file:
-            json.dump(notes, file, ensure_ascii=False, indent=4)
-
-def show_tags():
-    selected_items = lst_note.selectedItems()
-    if selected_items:
-        key = selected_items[0].text()
-        tags = notes[key]['теги']
-        lst_tags.clear()
-        lst_tags.addItems(tags)
-
-
-def create_tags():
-    selected_items = lst_note.selectedItems()
-    if selected_items:
-        tags_text = fild_tags.text()
-        key = lst_note.currentItem().text()
-        if tags_text:
-            tags_list = tags_text.split(',')
-            tags_list = []
-            tags_list.append(tags_text)
-            if tags_list:
-                notes[key]['теги'] = tags_list
-                lst_tags.clear()  # Очищаємо список тегів
-                lst_tags.addItems(tags_list)  # Додаємо нові теги
-                fild_tags.clear()
-
-    save_notes()
-
-def unfasten_tags():
-    select_tegs = lst_tags.selectedItems()
-    select_note = lst_note.currentItem()
-    key = select_note.text()
-    if select_tegs:
-        for tag in select_tegs:
-            teg_text = tag.text()
-            notes[key]['теги'].remove(teg_text)
-            lst_tags.takeItem(lst_tags.row(tag))
-
-    save_notes()
-
-def search_notes():
-    tags_text = fild_tags.text().strip()
-    selected_tags = tags_text.split()
-
-    found_notes = []
-
-    for note_name, note_data in notes.items():
-        note_tags = note_data.get('теги', [])
-        if all(tag in note_tags for tag in selected_tags):
-            found_notes.append(note_name)
-
-    lst_note.clear()
-    lst_note.addItems(found_notes)
+    key = lst_note.currentItem().text()
+    notes[key]['текст'] = field_text.toPlainText()
+    
+    save_all()
 
 
 lst_note.itemClicked.connect(show_notes)
-lst_note.itemClicked.connect(show_tags)
-
 
 btn_note_create.clicked.connect(create_notes)
 btn_note_save.clicked.connect(save_notes)
-btn_note_del.clicked.connect(delete_note)
-
-btn_tags_add.clicked.connect(create_tags)
-btn_tags_unfasten.clicked.connect(unfasten_tags)
-btn_tags_search.clicked.connect(search_notes)
+btn_note_del.clicked.connect(del_note)
+#
+# btn_tags_add.clicked.connect(create_tags)
+# btn_tags_unfasten.clicked.connect(unfasten_tags)
+# btn_tags_search.clicked.connect(search_notes)
 
 with open('notes.json', 'r', encoding='utf-8') as file:
     notes = json.load(file)

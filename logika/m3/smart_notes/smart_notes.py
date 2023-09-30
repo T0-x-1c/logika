@@ -32,11 +32,11 @@ lb_tags = QLabel('Список тегів')
 lst_tags = QListWidget()
 
 btn_tags_add = QPushButton('Додати тег')
-btn_tags_unfasten = QPushButton('Відкріпити тег')
+btn_tags_del = QPushButton('Відкріпити тег')
 btn_tags_search = QPushButton('Шукати за тегом')
 
-fild_tags = QLineEdit()
-fild_tags.setPlaceholderText('Введіть тег')
+field_tags = QLineEdit()
+field_tags.setPlaceholderText('Введіть тег')
 
 osn_layout = QHBoxLayout()
 col1 = QVBoxLayout()
@@ -55,7 +55,7 @@ row1.addWidget(btn_note_create)
 row1.addWidget(btn_note_del)
 
 row2.addWidget(btn_tags_add)
-row2.addWidget(btn_tags_unfasten)
+row2.addWidget(btn_tags_del)
 
 
 col2.addWidget(lb_notes)
@@ -66,7 +66,7 @@ col2.addWidget(btn_note_save)
 
 col2.addWidget(lb_tags)
 col2.addWidget(lst_tags)
-col2.addWidget(fild_tags)
+col2.addWidget(field_tags)
 col2.addLayout(row2)
 col2.addWidget(btn_tags_search)
 
@@ -105,8 +105,55 @@ def del_note():
 def save_notes():
     key = lst_note.currentItem().text()
     notes[key]['текст'] = field_text.toPlainText()
-    
+
     save_all()
+
+
+def create_tags():
+    if lst_note.currentItem() and field_tags != None:
+        key = lst_note.currentItem().text()
+        print(key)
+        tags_lst_func = []
+        tags_lst_func.append(field_tags.text())
+
+        notes[key]['теги'] += tags_lst_func
+
+        lst_tags.clear()
+        field_tags.clear()
+        lst_tags.addItems(notes[key]['теги'])
+
+        save_all()
+
+def del_tags():
+    if lst_tags.currentItem():
+        key = lst_note.currentItem().text()
+        select_tag = lst_tags.currentItem().text()
+
+        notes[key]['теги'].remove(select_tag)
+
+        lst_tags.clear()
+        lst_tags.addItems(notes[key]['теги'])
+        save_all()
+
+def search_note_by_tag():
+    if field_tags.text() != '':
+        field_text.clear()
+        lst_tags.clear()
+
+        search_teg = field_tags.text()
+        found_notes = []
+
+        for notes_with_tag, all_notes in notes.items():
+            if search_teg in all_notes['теги']:
+                found_notes.append(notes_with_tag)
+
+        lst_note.clear()
+        lst_note.addItems(found_notes)
+        field_tags.clear()
+
+    elif field_tags.text() == '':
+        lst_note.clear()
+        lst_note.addItems(notes)
 
 
 lst_note.itemClicked.connect(show_notes)
@@ -114,10 +161,10 @@ lst_note.itemClicked.connect(show_notes)
 btn_note_create.clicked.connect(create_notes)
 btn_note_save.clicked.connect(save_notes)
 btn_note_del.clicked.connect(del_note)
-#
-# btn_tags_add.clicked.connect(create_tags)
-# btn_tags_unfasten.clicked.connect(unfasten_tags)
-# btn_tags_search.clicked.connect(search_notes)
+
+btn_tags_add.clicked.connect(create_tags)
+btn_tags_del.clicked.connect(del_tags)
+btn_tags_search.clicked.connect(search_note_by_tag)
 
 with open('notes.json', 'r', encoding='utf-8') as file:
     notes = json.load(file)

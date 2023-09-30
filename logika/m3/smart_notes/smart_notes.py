@@ -175,4 +175,4 @@ lst_note.addItems(notes)
 window.setLayout(osn_layout)
 
 window.show()
-sys.exit(app.exec_())
+app.exec_()

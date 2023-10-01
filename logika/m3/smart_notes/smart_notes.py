@@ -110,9 +110,8 @@ def save_notes():
 
 
 def create_tags():
-    if lst_note.currentItem() and field_tags != None:
+    if lst_note.currentItem() and field_tags.text() != '':
         key = lst_note.currentItem().text()
-        print(key)
         tags_lst_func = []
         tags_lst_func.append(field_tags.text())
 
@@ -175,4 +174,4 @@ lst_note.addItems(notes)
 window.setLayout(osn_layout)
 
 window.show()
-app.exec_()
+sys.exit(app.exec_())

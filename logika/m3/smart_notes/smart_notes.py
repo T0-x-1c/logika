@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
     QApplication, QWidget, QTextEdit, QLabel,
     QListWidget, QPushButton, QLineEdit, QHBoxLayout, QVBoxLayout, QInputDialog,
     QTableWidget,  QListWidgetItem, QFormLayout,
-    QGroupBox, QButtonGroup, QRadioButton, QSpinBox, )
+    QGroupBox, QButtonGroup, QRadioButton, QSpinBox, QMessageBox)
 
 
 def save_all():
@@ -16,6 +16,9 @@ app = QApplication([])
 window = QWidget()
 window.resize(800,600)
 
+# window.setStyleSheet('''
+#                     background-color: rgb(255,255,255);
+#                     ''')
 
 field_text = QTextEdit()
 
@@ -34,6 +37,7 @@ lst_tags = QListWidget()
 btn_tags_add = QPushButton('Додати тег')
 btn_tags_del = QPushButton('Відкріпити тег')
 btn_tags_search = QPushButton('Шукати за тегом')
+btn_setting = QPushButton('⚙️')
 
 field_tags = QLineEdit()
 field_tags.setPlaceholderText('Введіть тег')
@@ -43,6 +47,7 @@ col1 = QVBoxLayout()
 col2 = QVBoxLayout()
 row1 = QHBoxLayout()
 row2 = QHBoxLayout()
+row3 = QHBoxLayout()
 
 
 osn_layout.addLayout(col1, stretch=2)
@@ -57,8 +62,11 @@ row1.addWidget(btn_note_del)
 row2.addWidget(btn_tags_add)
 row2.addWidget(btn_tags_del)
 
+row3.addWidget(lb_notes, stretch=9)
+row3.addWidget(btn_setting, stretch=1)
 
-col2.addWidget(lb_notes)
+
+col2.addLayout(row3)
 col2.addWidget(lst_note)
 col2.addLayout(row1)
 col2.addWidget(btn_note_save)
@@ -103,10 +111,11 @@ def del_note():
         save_all()
 
 def save_notes():
-    key = lst_note.currentItem().text()
-    notes[key]['текст'] = field_text.toPlainText()
+    if lst_note.currentItem():
+        key = lst_note.currentItem().text()
+        notes[key]['текст'] = field_text.toPlainText()
 
-    save_all()
+        save_all()
 
 
 def create_tags():
@@ -135,24 +144,39 @@ def del_tags():
         save_all()
 
 def search_note_by_tag():
-    if field_tags.text() != '':
-        field_text.clear()
-        lst_tags.clear()
-
-        search_teg = field_tags.text()
-        found_notes = []
-
-        for notes_with_tag, all_notes in notes.items():
-            if search_teg in all_notes['теги']:
-                found_notes.append(notes_with_tag)
-
-        lst_note.clear()
-        lst_note.addItems(found_notes)
-        field_tags.clear()
-
-    elif field_tags.text() == '':
+    if btn_tags_search.text() == 'Скинути пошук':
         lst_note.clear()
         lst_note.addItems(notes)
+        field_tags.clear()
+
+        btn_tags_search.setText('Шукати за тегом')
+
+
+    else:
+        if field_tags.text() != '':
+            field_text.clear()
+            lst_tags.clear()
+
+            search_teg = field_tags.text()
+            found_notes = []
+
+            for notes_with_tag, all_notes in notes.items():
+                if search_teg in all_notes['теги']:
+                    found_notes.append(notes_with_tag)
+
+            lst_note.clear()
+            lst_note.addItems(found_notes)
+
+        btn_tags_search.setText('Скинути пошук')
+
+setting_window = QWidget()
+
+def setting():
+    setting_window.resize(300, 300)
+
+    setting_window.setWindowTitle("Налаштування")
+
+    setting_window.show()
 
 
 lst_note.itemClicked.connect(show_notes)
@@ -165,6 +189,8 @@ btn_tags_add.clicked.connect(create_tags)
 btn_tags_del.clicked.connect(del_tags)
 btn_tags_search.clicked.connect(search_note_by_tag)
 
+btn_setting.clicked.connect(setting)
+
 with open('notes.json', 'r', encoding='utf-8') as file:
     notes = json.load(file)
 
@@ -174,4 +200,5 @@ lst_note.addItems(notes)
 window.setLayout(osn_layout)
 
 window.show()
+
 sys.exit(app.exec_())

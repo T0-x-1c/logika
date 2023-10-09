@@ -59,36 +59,17 @@ row3 = QHBoxLayout()
 hide_window = QWidget()
 show_window = QWidget()
 
-visibility_col2 = None
-
-hide_window.setLayout(col2)
-def hide_col2():
-    hide_window.setVisible(False)
-    visibility_col2 = False
-    visibility(visibility_col2)
-
 show_window.setLayout(col2)
 def show_col2():
-    print('1')
-    show_window.setVisible(False)
-    visibility_col2 = True
-    visibility(visibility_col2)
+    if show_window.isVisible():
+        show_window.setVisible(False)
+    else:
+        show_window.setVisible(True)
 
-def visibility(visibility_col2):
-    print('5')
-    if visibility_col2 == True:
-        print('visibility_col2 == True')
-        osn_layout.addWidget(show_window, stretch=50)
-    if visibility_col2 == False:
-        print('2')
-        osn_layout.addWidget(hide_window, stretch=50)
 
 osn_layout.addLayout(col1, stretch=100)
 osn_layout.addLayout(col3, stretch=1)
-visibility(visibility_col2)
-
-osn_layout.addLayout(col1, stretch=100)
-osn_layout.addLayout(col3, stretch=1)
+osn_layout.addWidget(show_window, stretch=50)
 
 
 col1.addWidget(field_text)

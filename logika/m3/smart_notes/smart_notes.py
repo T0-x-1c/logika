@@ -218,83 +218,86 @@ def window_theme_white():
 setting_window = QWidget()
 setting_window.setWindowIcon(QIcon('pict/Settings_icon'))
 
+
+'''Налаштування'''
+
+setting_window.setFixedSize(490, 170)
+setting_window.setWindowTitle("Налаштування")
+
+setting_osn_layout = QHBoxLayout()
+
+setting_row1 = QVBoxLayout()
+setting_row2 = QVBoxLayout()
+setting_row3 = QVBoxLayout()
+
+setting_col1 = QVBoxLayout()
+setting_col2 = QVBoxLayout()
+setting_col3 = QVBoxLayout()
+setting_col4 = QVBoxLayout()
+
+setting_transparency_lb = QLabel('прозорість вікна')
+setting_transparency_spin = QSpinBox(value = 10)
+
+setting_transparency_spin.setMinimum(0)
+setting_transparency_spin.setMaximum(10)
+
+setting_dark_theme = QRadioButton('Ввімкнути темну тему')
+setting_bright_theme = QRadioButton('Ввімкнути світлу тему')
+setting_bright_theme.setChecked(True)
+
+setting_soon_to_be_1 = QRadioButton('Скоро...')
+setting_soon_to_be_2 = QRadioButton('Скоро...')
+
+setting_save_path = QLineEdit()
+setting_save_path.setPlaceholderText('Введіть шлях для збереження')
+setting_save_path.setText("D:\\logika\\m3\\smart_notes\\save")
+
+setting_btn_save_path = QPushButton('Зберегти шлях')
+
+setting_btn_save_transparency = QPushButton('Зберегти непрозорість')
+setting_btn_save = QPushButton('Зберегти налаштування')
+
+setting_col1.addWidget(setting_transparency_lb)
+setting_col1.addWidget(setting_transparency_spin)
+
+setting_col2.addWidget(setting_btn_save_transparency)
+
+setting_row2.addWidget(setting_dark_theme)
+setting_row2.addWidget(setting_bright_theme)
+setting_row2.addWidget(setting_soon_to_be_1)
+setting_row2.addWidget(setting_soon_to_be_2)
+
+setting_col3.addWidget(setting_save_path)
+setting_col3.addWidget(setting_btn_save_path)
+
+setting_col4.addWidget(setting_btn_save)
+
+
+setting_osn_layout.addLayout(setting_row1)
+setting_osn_layout.addLayout(setting_row2)
+setting_osn_layout.addLayout(setting_row3)
+
+setting_row1.addLayout(setting_col1)
+setting_row1.addLayout(setting_col2)
+
+setting_row3.addLayout(setting_col3)
+setting_row3.addLayout(setting_col4)
+
+
+setting_btn_save_transparency.clicked.connect(lambda: transparency_window(setting_transparency_spin.value()))
+
+setting_dark_theme.clicked.connect(window_theme_dark)
+setting_bright_theme.clicked.connect(window_theme_white)
+
+# setting_btn_save.clicked.connect(save_setting)
+# setting_btn_save_path.clicked.connect()
+
+setting_window.setLayout(setting_osn_layout)
+
+
 def setting_open():
-    setting_window.setFixedSize(490, 170)
-    setting_window.setWindowTitle("Налаштування")
-
-    setting_osn_layout = QHBoxLayout()
-
-    setting_row1 = QVBoxLayout()
-    setting_row2 = QVBoxLayout()
-    setting_row3 = QVBoxLayout()
-
-    setting_col1 = QVBoxLayout()
-    setting_col2 = QVBoxLayout()
-    setting_col3 = QVBoxLayout()
-    setting_col4 = QVBoxLayout()
-
-    setting_transparency_lb = QLabel('прозорість вікна')
-    setting_transparency_spin = QSpinBox(value = 10)
-
-    setting_transparency_spin.setMinimum(0)
-    setting_transparency_spin.setMaximum(10)
-
-    setting_dark_theme = QRadioButton('Ввімкнути темну тему')
-    setting_bright_theme = QRadioButton('Ввімкнути світлу тему')
-    setting_bright_theme.setChecked(True)
-
-    setting_soon_to_be_1 = QRadioButton('Скоро...')
-    setting_soon_to_be_2 = QRadioButton('Скоро...')
-
-    setting_save_path = QLineEdit()
-    setting_save_path.setPlaceholderText('Введіть шлях для збереження')
-    setting_save_path.setText("D:\\logika\\m3\\smart_notes\\save")
-
-    setting_btn_save_path = QPushButton('Зберегти шлях')
-
-    setting_btn_save_transparency = QPushButton('Зберегти непрозорість')
-    setting_btn_save = QPushButton('Зберегти налаштування')
-
-
-    setting_col1.addWidget(setting_transparency_lb)
-    setting_col1.addWidget(setting_transparency_spin)
-
-    setting_col2.addWidget(setting_btn_save_transparency)
-
-    setting_row2.addWidget(setting_dark_theme)
-    setting_row2.addWidget(setting_bright_theme)
-    setting_row2.addWidget(setting_soon_to_be_1)
-    setting_row2.addWidget(setting_soon_to_be_2)
-
-    setting_col3.addWidget(setting_save_path)
-    setting_col3.addWidget(setting_btn_save_path)
-
-    setting_col4.addWidget(setting_btn_save)
-
-
-    setting_osn_layout.addLayout(setting_row1)
-    setting_osn_layout.addLayout(setting_row2)
-    setting_osn_layout.addLayout(setting_row3)
-
-    setting_row1.addLayout(setting_col1)
-    setting_row1.addLayout(setting_col2)
-
-    setting_row3.addLayout(setting_col3)
-    setting_row3.addLayout(setting_col4)
-
-
-    setting_btn_save_transparency.clicked.connect(lambda: transparency_window(setting_transparency_spin.value()))
-
-    setting_dark_theme.clicked.connect(window_theme_dark)
-    setting_bright_theme.clicked.connect(window_theme_white)
-
-    # setting_btn_save.clicked.connect(save_setting)
-
-    setting_window.setLayout(setting_osn_layout)
     setting_window.show()
 
-
-#setting_save_path = 'D:\logika\m3\smart_notes\save'
 def save_txt():
     if lst_note.currentItem():
         key = lst_note.currentItem().text()

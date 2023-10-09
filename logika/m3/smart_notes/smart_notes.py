@@ -63,8 +63,10 @@ show_window.setLayout(col2)
 def show_col2():
     if show_window.isVisible():
         show_window.setVisible(False)
+        btn_hide.setText('<')
     else:
         show_window.setVisible(True)
+        btn_hide.setText('>')
 
 
 osn_layout.addLayout(col1, stretch=100)
@@ -198,11 +200,6 @@ def search_note_by_tag():
 #
 # def show_col2():
 #
-
-def save_txt():
-    pass
-
-
 def transparency_window(transparency_func):
     window.setWindowOpacity(transparency_func/10)
     setting_window.setWindowOpacity(transparency_func/10)
@@ -215,15 +212,7 @@ def window_theme_dark():
 def window_theme_white():
     window.setStyleSheet(None)
 
-def save_txt():
-    key = lst_note.currentItem().text()
 
-    name_txt = key
-    text_txt = notes[key]['текст']
-
-    with open(f'{name_txt}.txt', 'x', encoding='utf-8') as txt_file:
-        txt_file.write(f"      Name:\n    ***{name_txt}***")
-        txt_file.write(text_txt)
 
 
 setting_window = QWidget()
@@ -259,6 +248,7 @@ def setting_open():
 
     setting_save_path = QLineEdit()
     setting_save_path.setPlaceholderText('Введіть шлях для збереження')
+    setting_save_path.setText("D:\\logika\\m3\\smart_notes\\save")
 
     setting_btn_save_path = QPushButton('Зберегти шлях')
 
@@ -293,7 +283,6 @@ def setting_open():
     setting_row3.addLayout(setting_col4)
 
 
-
     setting_btn_save_transparency.clicked.connect(lambda: transparency_window(setting_transparency_spin.value()))
 
     setting_dark_theme.clicked.connect(window_theme_dark)
@@ -304,6 +293,18 @@ def setting_open():
     setting_window.setLayout(setting_osn_layout)
     setting_window.show()
 
+
+#setting_save_path = 'D:\logika\m3\smart_notes\save'
+def save_txt():
+    if lst_note.currentItem():
+        key = lst_note.currentItem().text()
+
+        name_txt = key
+        text_txt = notes[key]['текст']
+
+        with open(f'{setting_save_path.text()}/{name_txt}.txt', 'x', encoding='utf-8') as txt_file:
+            txt_file.write(f"         Name:\n    ***{name_txt}***")
+            txt_file.write(text_txt)
 
 lst_note.itemClicked.connect(show_notes)
 

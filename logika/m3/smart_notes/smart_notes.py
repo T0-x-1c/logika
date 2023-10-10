@@ -178,7 +178,7 @@ def search_note_by_tag():
 
 
     else:
-        if field_tags.text() != '':
+        if field_tags.text() != None:
             field_text.clear()
             lst_tags.clear()
 
@@ -192,14 +192,9 @@ def search_note_by_tag():
             lst_note.clear()
             lst_note.addItems(found_notes)
 
-        btn_tags_search.setText('Скинути пошук')
+            btn_tags_search.setText('Скинути пошук')
 
 
-# def hide_col2():
-#     hide_window.setVisible(False)
-#
-# def show_col2():
-#
 def transparency_window(transparency_func):
     window.setWindowOpacity(transparency_func/10)
     setting_window.setWindowOpacity(transparency_func/10)
@@ -208,10 +203,34 @@ def window_theme_dark():
     window.setStyleSheet(f'''
                         background-color: rgb(80,80,80);
                         ''')
+    setting_window.setStyleSheet(f'''
+                        background-color: rgb(80,80,80);
+                        ''')
+
 
 def window_theme_white():
     window.setStyleSheet(None)
+    setting_window.setStyleSheet(None)
 
+def window_theme_rbg():
+    rgb_color, ok = QInputDialog.getText(setting_window, 'Введіть RGB коляр', 'Введіть RGB коляр \n(xxx,xxx,xxx)')
+    if ok:
+        window.setStyleSheet(f'''
+                                background-color: rgb({rgb_color});
+                                ''')
+        setting_window.setStyleSheet(f'''
+                                background-color: rgb({rgb_color});
+                                ''')
+
+def window_theme_hex():
+    hex_color, ok = QInputDialog.getText(setting_window, 'Введіть HEX коляр', 'Введіть HEX коляр \n(#xxxxxx)')
+    if ok:
+        window.setStyleSheet(f'''
+                                background-color: #{hex_color};
+                                ''')
+        setting_window.setStyleSheet(f'''
+                                background-color: #{hex_color};
+                                ''')
 
 
 
@@ -221,7 +240,7 @@ setting_window.setWindowIcon(QIcon('pict/Settings_icon'))
 
 '''Налаштування'''
 
-setting_window.setFixedSize(490, 170)
+setting_window.setFixedSize(550, 170)
 setting_window.setWindowTitle("Налаштування")
 
 setting_osn_layout = QHBoxLayout()
@@ -245,14 +264,13 @@ setting_dark_theme = QRadioButton('Ввімкнути темну тему')
 setting_bright_theme = QRadioButton('Ввімкнути світлу тему')
 setting_bright_theme.setChecked(True)
 
-setting_soon_to_be_1 = QRadioButton('Скоро...')
-setting_soon_to_be_2 = QRadioButton('Скоро...')
+setting_hex_theme = QRadioButton('Змінити колір фону HEX')
+setting_rgb_theme = QRadioButton('Змінити колір фону RGB')
 
 setting_save_path = QLineEdit()
 setting_save_path.setPlaceholderText('Введіть шлях для збереження')
 setting_save_path.setText("D:\\logika\\m3\\smart_notes\\save")
 
-setting_btn_save_path = QPushButton('Зберегти шлях')
 
 setting_btn_save_transparency = QPushButton('Зберегти непрозорість')
 setting_btn_save = QPushButton('Зберегти налаштування')
@@ -264,14 +282,12 @@ setting_col2.addWidget(setting_btn_save_transparency)
 
 setting_row2.addWidget(setting_dark_theme)
 setting_row2.addWidget(setting_bright_theme)
-setting_row2.addWidget(setting_soon_to_be_1)
-setting_row2.addWidget(setting_soon_to_be_2)
+setting_row2.addWidget(setting_rgb_theme)
+setting_row2.addWidget(setting_hex_theme)
 
 setting_col3.addWidget(setting_save_path)
-setting_col3.addWidget(setting_btn_save_path)
 
 setting_col4.addWidget(setting_btn_save)
-
 
 setting_osn_layout.addLayout(setting_row1)
 setting_osn_layout.addLayout(setting_row2)
@@ -289,14 +305,17 @@ setting_btn_save_transparency.clicked.connect(lambda: transparency_window(settin
 setting_dark_theme.clicked.connect(window_theme_dark)
 setting_bright_theme.clicked.connect(window_theme_white)
 
+setting_rgb_theme.clicked.connect(window_theme_rbg)
+setting_hex_theme.clicked.connect(window_theme_hex)
+
 # setting_btn_save.clicked.connect(save_setting)
-# setting_btn_save_path.clicked.connect()
 
 setting_window.setLayout(setting_osn_layout)
 
 
 def setting_open():
     setting_window.show()
+
 
 def save_txt():
     if lst_note.currentItem():
@@ -306,7 +325,7 @@ def save_txt():
         text_txt = notes[key]['текст']
 
         with open(f'{setting_save_path.text()}/{name_txt}.txt', 'x', encoding='utf-8') as txt_file:
-            txt_file.write(f"         Name:\n    ***{name_txt}***")
+            txt_file.write(f"        Name:\n    >>>{name_txt}<<<\n\n        Text:\n")
             txt_file.write(text_txt)
 
 lst_note.itemClicked.connect(show_notes)

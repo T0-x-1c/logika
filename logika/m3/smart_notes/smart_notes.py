@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (
     QApplication, QWidget, QTextEdit, QLabel,
     QListWidget, QPushButton, QLineEdit, QHBoxLayout, QVBoxLayout, QInputDialog,
     QTableWidget,  QListWidgetItem, QFormLayout,
-    QGroupBox, QButtonGroup, QRadioButton, QSpinBox, QMessageBox)
+    QGroupBox, QButtonGroup, QRadioButton, QSpinBox, QMessageBox, QColorDialog)
 
 
 def save_all():
@@ -232,13 +232,44 @@ def window_theme_hex():
                                 background-color: #{hex_color};
                                 ''')
 
+'''Палітра кольорів'''
+
+def open_color_palette():
+    color = QColorDialog.getColor()
+    if color.isValid():
+        red = color.red()
+        green = color.green()
+        blue = color.blue()
+
+        rgb_color = (f'{red},{green},{blue}')
+
+        last_rgb_color = rgb_color
 
 
-setting_window = QWidget()
-setting_window.setWindowIcon(QIcon('pict/Settings_icon'))
+        window.setStyleSheet(f'''
+                                background-color: rgb({last_rgb_color});
+                                ''')
+        setting_window.setStyleSheet(f'''
+                                        background-color: rgb({last_rgb_color});
+                                        ''')
+
+        setting_palette.setChecked(True)
+        return last_rgb_color
+
+
+def last_palette_color(last_rgb_color):
+    window.setStyleSheet(f'''
+                                    background-color: rgb({last_rgb_color});
+                                    ''')
+    setting_window.setStyleSheet(f'''
+                                    background-color: rgb({last_rgb_color});
+                                    ''')
 
 
 '''Налаштування'''
+
+setting_window = QWidget()
+setting_window.setWindowIcon(QIcon('pict/Settings_icon'))
 
 setting_window.setFixedSize(550, 170)
 setting_window.setWindowTitle("Налаштування")
@@ -253,6 +284,7 @@ setting_col1 = QVBoxLayout()
 setting_col2 = QVBoxLayout()
 setting_col3 = QVBoxLayout()
 setting_col4 = QVBoxLayout()
+setting_col5 = QHBoxLayout()
 
 setting_transparency_lb = QLabel('прозорість вікна')
 setting_transparency_spin = QSpinBox(value = 10)
@@ -266,6 +298,9 @@ setting_bright_theme.setChecked(True)
 
 setting_hex_theme = QRadioButton('Змінити колір фону HEX')
 setting_rgb_theme = QRadioButton('Змінити колір фону RGB')
+
+setting_palette = QRadioButton()
+setting_palette_btn = QPushButton('Вибрати коляр в палітрі')
 
 setting_save_path = QLineEdit()
 setting_save_path.setPlaceholderText('Введіть шлях для збереження')
@@ -284,6 +319,11 @@ setting_row2.addWidget(setting_dark_theme)
 setting_row2.addWidget(setting_bright_theme)
 setting_row2.addWidget(setting_rgb_theme)
 setting_row2.addWidget(setting_hex_theme)
+
+setting_col5.addWidget(setting_palette)
+setting_col5.addWidget(setting_palette_btn)
+setting_row2.addLayout(setting_col5)
+
 
 setting_col3.addWidget(setting_save_path)
 
@@ -308,7 +348,8 @@ setting_bright_theme.clicked.connect(window_theme_white)
 setting_rgb_theme.clicked.connect(window_theme_rbg)
 setting_hex_theme.clicked.connect(window_theme_hex)
 
-# setting_btn_save.clicked.connect(save_setting)
+# setting_palette.clicked.connect(palette_open)
+setting_palette_btn.clicked.connect(open_color_palette)
 
 setting_window.setLayout(setting_osn_layout)
 

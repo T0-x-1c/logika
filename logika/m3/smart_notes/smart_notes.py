@@ -295,7 +295,6 @@ def save_path():
 
 '''Палітра кольорів'''
 
-last_palette_color = None
 def open_color_palette():
     color = QColorDialog.getColor()
     if color.isValid():

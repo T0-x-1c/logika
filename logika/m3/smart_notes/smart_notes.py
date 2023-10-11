@@ -183,7 +183,7 @@ def search_note_by_tag():
 
 
     else:
-        if field_tags.text() != None:
+        if field_tags.text() != '':
             field_text.clear()
             lst_tags.clear()
 
@@ -205,6 +205,8 @@ def transparency_window(transparency_func):
     settings["value"] = transparency_func
     window.setWindowOpacity(transparency_func/10)
     setting_window.setWindowOpacity(transparency_func/10)
+
+    save_setting()
 
 def window_theme_dark():
     window.setStyleSheet(f'''
@@ -292,6 +294,8 @@ def save_path():
     func_save_path = setting_save_path.text()
     print(func_save_path)
     settings["save_path"] = func_save_path
+
+    save_setting()
 
 '''Палітра кольорів'''
 

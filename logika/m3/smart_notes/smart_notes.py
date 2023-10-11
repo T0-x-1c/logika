@@ -13,7 +13,12 @@ def save_all():
     with open('notes.json', 'w', encoding='utf-8') as file:
         json.dump(notes, file, ensure_ascii=False, sort_keys=True, indent=4)
 
+def save_setting():
+    with open('settings.json', 'w', encoding='utf-8') as set_file:
+        json.dump(settings, set_file, ensure_ascii=False, sort_keys=True, indent=4)
 
+with open('settings.json', 'r', encoding='utf-8') as set_file:
+    settings = json.load(set_file)
 
 app = QApplication([])
 window = QWidget()
@@ -194,8 +199,10 @@ def search_note_by_tag():
 
             btn_tags_search.setText('Скинути пошук')
 
+'''Функції налаштувань'''
 
 def transparency_window(transparency_func):
+    settings["value"] = transparency_func
     window.setWindowOpacity(transparency_func/10)
     setting_window.setWindowOpacity(transparency_func/10)
 
@@ -207,34 +214,88 @@ def window_theme_dark():
                         background-color: rgb(80,80,80);
                         ''')
 
+    settings["window_theme_dark"] = "1"
+    settings["window_theme_white"] = '0'
+    settings["window_theme_rbg"] = "0"
+    settings["window_theme_hex"] = "0"
+    settings["color_palette"] = "0"
+
+    save_setting()
 
 def window_theme_white():
     window.setStyleSheet(None)
     setting_window.setStyleSheet(None)
 
+    settings["window_theme_dark"] = "0"
+    settings["window_theme_white"] = '1'
+    settings["window_theme_rbg"] = "0"
+    settings["window_theme_hex"] = "0"
+    settings["color_palette"] = "0"
+
+    save_setting()
+
 def window_theme_rbg():
     rgb_color, ok = QInputDialog.getText(setting_window, 'Введіть RGB коляр', 'Введіть RGB коляр \n(xxx,xxx,xxx)')
     if ok:
+        settings["last_rgb_color"] = rgb_color
         window.setStyleSheet(f'''
                                 background-color: rgb({rgb_color});
                                 ''')
         setting_window.setStyleSheet(f'''
                                 background-color: rgb({rgb_color});
                                 ''')
+
+        settings["window_theme_dark"] = "0"
+        settings["window_theme_white"] = '0'
+        settings["window_theme_rbg"] = "1"
+        settings["window_theme_hex"] = "0"
+        settings["color_palette"] = "0"
+
+        save_setting()
+
+def last_rgb_color():
+    window.setStyleSheet(f'''
+                            background-color: rgb({settings["last_rgb_color"]});
+                            ''')
+    setting_window.setStyleSheet(f'''
+                                    background-color: rgb({settings["last_rgb_color"]});
+                                    ''')
 
 def window_theme_hex():
     hex_color, ok = QInputDialog.getText(setting_window, 'Введіть HEX коляр', 'Введіть HEX коляр \n(#xxxxxx)')
     if ok:
+        settings["last_hex_color"] = hex_color
         window.setStyleSheet(f'''
                                 background-color: #{hex_color};
                                 ''')
         setting_window.setStyleSheet(f'''
-                                background-color: #{hex_color};
-                                ''')
+                                        background-color: #{hex_color};
+                                        ''')
+
+        settings["window_theme_dark"] = "0"
+        settings["window_theme_white"] = '0'
+        settings["window_theme_rbg"] = "0"
+        settings["window_theme_hex"] = "1"
+        settings["color_palette"] = "0"
+
+        save_setting()
+
+def last_hex_color():
+    window.setStyleSheet(f'''
+                            background-color: #{settings["last_hex_color"]};
+                            ''')
+    setting_window.setStyleSheet(f'''
+                                    background-color: #{settings["last_hex_color"]};
+                                    ''')
+
+def save_path():
+    func_save_path = setting_save_path.text()
+    print(func_save_path)
+    settings["save_path"] = func_save_path
 
 '''Палітра кольорів'''
 
-rgb_color = None
+last_palette_color = None
 def open_color_palette():
     color = QColorDialog.getColor()
     if color.isValid():
@@ -242,26 +303,36 @@ def open_color_palette():
         green = color.green()
         blue = color.blue()
 
-        global rgb_color
-        rgb_color = (f'{red},{green},{blue}')
+        global last_palette_color
+        last_palette_color = (f'{red},{green},{blue}')
+        settings["last_palette_color"] = last_palette_color
 
         window.setStyleSheet(f'''
-                                background-color: rgb({rgb_color});
+                                background-color: rgb({last_palette_color});
                                 ''')
         setting_window.setStyleSheet(f'''
-                                        background-color: rgb({rgb_color});
+                                        background-color: rgb({last_palette_color});
                                         ''')
 
         setting_palette.setChecked(True)
-        setting_palette.setText(rgb_color)
+        setting_palette.setText(last_palette_color)
+
+        settings["window_theme_dark"] = "0"
+        settings["window_theme_white"] = '0'
+        settings["window_theme_rbg"] = "0"
+        settings["window_theme_hex"] = "0"
+        settings["color_palette"] = "1"
+
+        save_setting()
+
 
 def last_palette_color():
-    if rgb_color != None:
+    if last_palette_color != None:
         window.setStyleSheet(f'''
-                                        background-color: rgb({rgb_color});
+                                        background-color: rgb({settings["last_palette_color"]});
                                         ''')
         setting_window.setStyleSheet(f'''
-                                        background-color: rgb({rgb_color});
+                                        background-color: rgb({settings["last_palette_color"]});
                                         ''')
 
 
@@ -282,51 +353,52 @@ setting_row3 = QVBoxLayout()
 setting_col1 = QVBoxLayout()
 setting_col2 = QVBoxLayout()
 setting_col3 = QVBoxLayout()
-setting_col4 = QVBoxLayout()
-setting_col5 = QHBoxLayout()
+setting_col4 = QHBoxLayout()
 
-setting_transparency_lb = QLabel('прозорість вікна')
-setting_transparency_spin = QSpinBox(value = 10)
+setting_lb_transparency = QLabel('прозорість вікна')
+setting_spin_transparency = QSpinBox(value = settings["value"])
 
-setting_transparency_spin.setMinimum(0)
-setting_transparency_spin.setMaximum(10)
+setting_spin_transparency.setMinimum(0)
+setting_spin_transparency.setMaximum(10)
 
 setting_dark_theme = QRadioButton('Ввімкнути темну тему')
-setting_bright_theme = QRadioButton('Ввімкнути світлу тему')
-setting_bright_theme.setChecked(True)
+setting_white_theme = QRadioButton('Ввімкнути світлу тему')
+setting_white_theme.setChecked(True)
 
 setting_hex_theme = QRadioButton('Змінити колір фону HEX')
 setting_rgb_theme = QRadioButton('Змінити колір фону RGB')
 
 setting_palette = QRadioButton()
-setting_palette_btn = QPushButton('Відкрити палітру')
+setting_btn_palette = QPushButton('Відкрити палітру')
+
+setting_save_path_lb = QLabel('Введіть шлях \nдля збереження .txt формату')
 
 setting_save_path = QLineEdit()
 setting_save_path.setPlaceholderText('Введіть шлях для збереження')
-setting_save_path.setText("save")
-
+setting_save_path.setText(f'{settings["save_path"]}')
 
 setting_btn_save_transparency = QPushButton('Зберегти непрозорість')
-setting_btn_save = QPushButton('Зберегти налаштування')
+setting_btn_save_path = QPushButton('Зберегти шлях збереження')
 
-setting_col1.addWidget(setting_transparency_lb)
-setting_col1.addWidget(setting_transparency_spin)
+setting_col1.addWidget(setting_lb_transparency)
+setting_col1.addWidget(setting_spin_transparency)
 
 setting_col2.addWidget(setting_btn_save_transparency)
 
 setting_row2.addWidget(setting_dark_theme)
-setting_row2.addWidget(setting_bright_theme)
+setting_row2.addWidget(setting_white_theme)
 setting_row2.addWidget(setting_rgb_theme)
 setting_row2.addWidget(setting_hex_theme)
 
-setting_col5.addWidget(setting_palette)
-setting_col5.addWidget(setting_palette_btn)
-setting_row2.addLayout(setting_col5)
+setting_col4.addWidget(setting_palette)
+setting_col4.addWidget(setting_btn_palette)
+setting_row2.addLayout(setting_col4)
 
 
+setting_col3.addWidget(setting_save_path_lb)
 setting_col3.addWidget(setting_save_path)
 
-setting_col4.addWidget(setting_btn_save)
+setting_col3.addWidget(setting_btn_save_path)
 
 setting_osn_layout.addLayout(setting_row1)
 setting_osn_layout.addLayout(setting_row2)
@@ -336,19 +408,19 @@ setting_row1.addLayout(setting_col1)
 setting_row1.addLayout(setting_col2)
 
 setting_row3.addLayout(setting_col3)
-setting_row3.addLayout(setting_col4)
 
 
-setting_btn_save_transparency.clicked.connect(lambda: transparency_window(setting_transparency_spin.value()))
+setting_btn_save_transparency.clicked.connect(lambda: transparency_window(setting_spin_transparency.value()))
 
 setting_dark_theme.clicked.connect(window_theme_dark)
-setting_bright_theme.clicked.connect(window_theme_white)
-
+setting_white_theme.clicked.connect(window_theme_white)
 setting_rgb_theme.clicked.connect(window_theme_rbg)
 setting_hex_theme.clicked.connect(window_theme_hex)
 
 setting_palette.clicked.connect(last_palette_color)
-setting_palette_btn.clicked.connect(open_color_palette)
+setting_btn_palette.clicked.connect(open_color_palette)
+
+setting_btn_save_path.clicked.connect(save_path)
 
 setting_window.setLayout(setting_osn_layout)
 
@@ -364,9 +436,12 @@ def save_txt():
         name_txt = key
         text_txt = notes[key]['текст']
 
-        with open(f'{setting_save_path.text()}/{name_txt}.txt', 'x', encoding='utf-8') as txt_file:
+        with open(f'{settings["save_path"]}/{name_txt}.txt', 'x', encoding='utf-8') as txt_file:
             txt_file.write(f"        Name:\n    >>>{name_txt}<<<\n\n        Text:\n")
             txt_file.write(text_txt)
+
+
+
 
 lst_note.itemClicked.connect(show_notes)
 
@@ -387,8 +462,32 @@ with open('notes.json', 'r', encoding='utf-8') as file:
 
 lst_note.addItems(notes)
 
+'''загрузка файлів налаштувань'''
+if settings["window_theme_dark"] == "1":
+    setting_dark_theme.setChecked(True)
+    window_theme_dark()
+
+if settings["window_theme_white"] == "1":
+    setting_white_theme.setChecked(True)
+    window_theme_white()
+
+if settings["window_theme_rbg"] == "1":
+    setting_rgb_theme.setChecked(True)
+    last_rgb_color()
+
+if settings["window_theme_hex"] == "1":
+    setting_hex_theme.setChecked(True)
+    last_hex_color()
+
+if settings["color_palette"] == "1":
+    setting_palette.setChecked(True)
+    last_palette_color()
+
+transparency_window(setting_spin_transparency.value())
+
+
+
 window.setLayout(osn_layout)
 
 window.show()
-
 sys.exit(app.exec_())

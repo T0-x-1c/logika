@@ -234,6 +234,7 @@ def window_theme_hex():
 
 '''Палітра кольорів'''
 
+rgb_color = None
 def open_color_palette():
     color = QColorDialog.getColor()
     if color.isValid():
@@ -241,29 +242,27 @@ def open_color_palette():
         green = color.green()
         blue = color.blue()
 
+        global rgb_color
         rgb_color = (f'{red},{green},{blue}')
 
-        last_rgb_color = rgb_color
-
-
         window.setStyleSheet(f'''
-                                background-color: rgb({last_rgb_color});
+                                background-color: rgb({rgb_color});
                                 ''')
         setting_window.setStyleSheet(f'''
-                                        background-color: rgb({last_rgb_color});
+                                        background-color: rgb({rgb_color});
                                         ''')
 
         setting_palette.setChecked(True)
-        return last_rgb_color
+        setting_palette.setText(rgb_color)
 
-
-def last_palette_color(last_rgb_color):
-    window.setStyleSheet(f'''
-                                    background-color: rgb({last_rgb_color});
-                                    ''')
-    setting_window.setStyleSheet(f'''
-                                    background-color: rgb({last_rgb_color});
-                                    ''')
+def last_palette_color():
+    if rgb_color != None:
+        window.setStyleSheet(f'''
+                                        background-color: rgb({rgb_color});
+                                        ''')
+        setting_window.setStyleSheet(f'''
+                                        background-color: rgb({rgb_color});
+                                        ''')
 
 
 '''Налаштування'''
@@ -271,7 +270,7 @@ def last_palette_color(last_rgb_color):
 setting_window = QWidget()
 setting_window.setWindowIcon(QIcon('pict/Settings_icon'))
 
-setting_window.setFixedSize(550, 170)
+setting_window.setFixedSize(570, 170)
 setting_window.setWindowTitle("Налаштування")
 
 setting_osn_layout = QHBoxLayout()
@@ -300,11 +299,11 @@ setting_hex_theme = QRadioButton('Змінити колір фону HEX')
 setting_rgb_theme = QRadioButton('Змінити колір фону RGB')
 
 setting_palette = QRadioButton()
-setting_palette_btn = QPushButton('Вибрати коляр в палітрі')
+setting_palette_btn = QPushButton('Відкрити палітру')
 
 setting_save_path = QLineEdit()
 setting_save_path.setPlaceholderText('Введіть шлях для збереження')
-setting_save_path.setText("D:\\logika\\m3\\smart_notes\\save")
+setting_save_path.setText("save")
 
 
 setting_btn_save_transparency = QPushButton('Зберегти непрозорість')
@@ -348,7 +347,7 @@ setting_bright_theme.clicked.connect(window_theme_white)
 setting_rgb_theme.clicked.connect(window_theme_rbg)
 setting_hex_theme.clicked.connect(window_theme_hex)
 
-# setting_palette.clicked.connect(palette_open)
+setting_palette.clicked.connect(last_palette_color)
 setting_palette_btn.clicked.connect(open_color_palette)
 
 setting_window.setLayout(setting_osn_layout)

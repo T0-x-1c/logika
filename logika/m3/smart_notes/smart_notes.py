@@ -489,7 +489,6 @@ if settings["color_palette"] == "1":
 transparency_window(setting_spin_transparency.value())
 
 
-
 window.setLayout(osn_layout)
 
 window.show()

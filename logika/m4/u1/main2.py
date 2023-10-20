@@ -27,5 +27,3 @@ class ImageEditor():
         bw.save('bw' + self.fielname)
 
 img = ImageEditor('gomer.jpeg')
-img.open()
-img.do_left()

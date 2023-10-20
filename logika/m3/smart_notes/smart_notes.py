@@ -452,7 +452,6 @@ def save_txt():
 
 
 
-
 lst_note.itemClicked.connect(show_notes)
 
 btn_note_create.clicked.connect(create_notes)
@@ -466,6 +465,19 @@ btn_tags_search.clicked.connect(search_note_by_tag)
 btn_setting.clicked.connect(setting_open)
 btn_txt_save.clicked.connect(save_txt)
 btn_hide.clicked.connect(show_col2)
+
+
+all_button = [btn_hide,btn_setting,btn_tags_search,btn_tags_del,btn_tags_add,btn_txt_save,btn_note_create,btn_note_del,btn_note_save,
+              setting_btn_palette,setting_btn_save_path,setting_btn_save_transparency]
+
+
+for btn in all_button:
+    btn.setStyleSheet('''
+    background-color: rgb(230,230,230);
+    border: 1px solid rgb(195,195,195);
+    border-radius:2;
+                            ''')
+
 
 with open('notes.json', 'r', encoding='utf-8') as file:
     notes = json.load(file)

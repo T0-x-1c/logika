@@ -1,5 +1,5 @@
 {
-    "color_palette": "0",
+    "color_palette": "1",
     "last_hex_color": "ffffff",
     "last_palette_color": "235,252,255",
     "last_rgb_color": "111,111,111",
@@ -8,5 +8,5 @@
     "window_theme_dark": "0",
     "window_theme_hex": "0",
     "window_theme_rbg": "0",
-    "window_theme_white": "1"
+    "window_theme_white": "0"
 }

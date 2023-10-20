@@ -317,8 +317,8 @@ def open_color_palette():
                                         background-color: rgb({last_palette_color});
                                         ''')
 
-        setting_palette.setChecked(True)
-        setting_palette.setText(last_palette_color)
+        settingrb_palette.setChecked(True)
+        settingrb_palette.setText(last_palette_color)
 
         settings["window_theme_dark"] = "0"
         settings["window_theme_white"] = "0"
@@ -343,6 +343,8 @@ def last_palette_color():
     settings["window_theme_rbg"] = "0"
     settings["window_theme_hex"] = "0"
     settings["color_palette"] = "1"
+
+    save_setting()
 
 '''Налаштування'''
 
@@ -376,7 +378,7 @@ setting_white_theme.setChecked(True)
 setting_hex_theme = QRadioButton('Змінити колір фону HEX')
 setting_rgb_theme = QRadioButton('Змінити колір фону RGB')
 
-setting_palette = QRadioButton()
+settingrb_palette = QRadioButton()
 setting_btn_palette = QPushButton('Відкрити палітру')
 
 setting_save_path_lb = QLabel('Введіть шлях \nдля збереження .txt формату')
@@ -398,7 +400,7 @@ setting_row2.addWidget(setting_white_theme)
 setting_row2.addWidget(setting_rgb_theme)
 setting_row2.addWidget(setting_hex_theme)
 
-setting_col4.addWidget(setting_palette)
+setting_col4.addWidget(settingrb_palette)
 setting_col4.addWidget(setting_btn_palette)
 setting_row2.addLayout(setting_col4)
 
@@ -425,7 +427,7 @@ setting_white_theme.clicked.connect(window_theme_white)
 setting_rgb_theme.clicked.connect(window_theme_rbg)
 setting_hex_theme.clicked.connect(window_theme_hex)
 
-setting_palette.clicked.connect(last_palette_color)
+settingrb_palette.clicked.connect(last_palette_color)
 setting_btn_palette.clicked.connect(open_color_palette)
 
 setting_btn_save_path.clicked.connect(save_path)
@@ -488,7 +490,7 @@ if settings["window_theme_hex"] == "1":
     last_hex_color()
 
 if settings["color_palette"] == "1":
-    setting_palette.setChecked(True)
+    settingrb_palette.setChecked(True)
     last_palette_color()
 
 transparency_window(setting_spin_transparency.value())

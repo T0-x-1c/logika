@@ -321,7 +321,7 @@ def open_color_palette():
         setting_palette.setText(last_palette_color)
 
         settings["window_theme_dark"] = "0"
-        settings["window_theme_white"] = '0'
+        settings["window_theme_white"] = "0"
         settings["window_theme_rbg"] = "0"
         settings["window_theme_hex"] = "0"
         settings["color_palette"] = "1"
@@ -338,6 +338,11 @@ def last_palette_color():
                                         background-color: rgb({settings["last_palette_color"]});
                                         ''')
 
+    settings["window_theme_dark"] = "0"
+    settings["window_theme_white"] = "0"
+    settings["window_theme_rbg"] = "0"
+    settings["window_theme_hex"] = "0"
+    settings["color_palette"] = "1"
 
 '''Налаштування'''
 

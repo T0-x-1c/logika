@@ -16,6 +16,9 @@ app = QApplication([])
 window = QWidget()
 
 window.resize(700,500)
+window.setStyleSheet('''
+    background-color: rgb(227,243,243)
+    ''')
 
 col1 = QVBoxLayout()
 col2 = QHBoxLayout()

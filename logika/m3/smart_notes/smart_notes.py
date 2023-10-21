@@ -44,9 +44,6 @@ def color_btn(rgb):
     if rgb[2] < 60:
         rgb[2] = 60
 
-    settings['last_rgb_btn_color_1'] = rgb[0] - 20, rgb[1] - 20, rgb[2] - 20
-    settings['last_rgb_btn_color_2'] = rgb[0] - 55, rgb[1] - 55, rgb[2] - 55
-
     for btn in all_button:
         btn.setStyleSheet(F'''
         background-color: rgb({rgb[0] - 20},{rgb[1] - 20},{rgb[2] - 20});
@@ -400,13 +397,17 @@ def last_palette_color():
                                         background-color: rgb({settings["last_palette_color"]});
                                         ''')
 
-    color_btn(settings["last_rgb_btn_color"])
+    rgb = settings["last_palette_color"]
+    rgb = rgb.split(',')
+    rgb = [int(rgb[0]), int(rgb[1]), int(rgb[2])]
+    color_btn(rgb)
 
     settings["window_theme_dark"] = "0"
     settings["window_theme_white"] = "0"
     settings["window_theme_rbg"] = "0"
     settings["window_theme_hex"] = "0"
     settings["color_palette"] = "1"
+    settings["last_rgb_btn_color"] = rgb
 
     save_setting()
 

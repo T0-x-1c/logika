@@ -20,6 +20,42 @@ def save_setting():
 with open('settings.json', 'r', encoding='utf-8') as set_file:
     settings = json.load(set_file)
 
+
+def hex_to_rgb(hex):
+    rgb = []
+    for i in (0, 2, 4):
+        decimal = int(hex[i:i + 2], 16)
+        rgb.append(decimal)
+
+    return rgb
+
+
+def color_btn(rgb):
+    all_button = [btn_hide, btn_setting, btn_tags_search, btn_tags_del, btn_tags_add, btn_txt_save, btn_note_create,
+                  btn_note_del, btn_note_save,
+                  setting_btn_save_transparency, setting_btn_save_path, setting_btn_palette]
+
+    if rgb[0] < 60:
+        rgb[0] = 60
+
+    if rgb[1] < 60:
+        rgb[1] = 60
+
+    if rgb[2] < 60:
+        rgb[2] = 60
+
+    settings['last_rgb_btn_color_1'] = rgb[0] - 20, rgb[1] - 20, rgb[2] - 20
+    settings['last_rgb_btn_color_2'] = rgb[0] - 55, rgb[1] - 55, rgb[2] - 55
+
+    for btn in all_button:
+        btn.setStyleSheet(F'''
+        background-color: rgb({rgb[0] - 20},{rgb[1] - 20},{rgb[2] - 20});
+        border: 1px solid rgb({rgb[0] - 55},{rgb[1] - 55},{rgb[2] - 55});
+        border-radius:3;
+                                ''')
+
+    save_setting()
+
 app = QApplication([])
 window = QWidget()
 window.setWindowTitle("Розумні нотатки")
@@ -210,17 +246,21 @@ def transparency_window(transparency_func):
 
 def window_theme_dark():
     window.setStyleSheet(f'''
-                        background-color: rgb(80,80,80);
+                        background-color: rgb(111,111,111);
                         ''')
     setting_window.setStyleSheet(f'''
-                        background-color: rgb(80,80,80);
+                        background-color: rgb(111,111,111);
                         ''')
+
+    rgb = [160, 160, 160]
+    color_btn(rgb)
 
     settings["window_theme_dark"] = "1"
     settings["window_theme_white"] = '0'
     settings["window_theme_rbg"] = "0"
     settings["window_theme_hex"] = "0"
     settings["color_palette"] = "0"
+    settings['last_rgb_btn_color'] = rgb
 
     save_setting()
 
@@ -228,11 +268,16 @@ def window_theme_white():
     window.setStyleSheet(None)
     setting_window.setStyleSheet(None)
 
+    rgb = [255, 255, 255]
+    color_btn(rgb)
+
     settings["window_theme_dark"] = "0"
     settings["window_theme_white"] = '1'
     settings["window_theme_rbg"] = "0"
     settings["window_theme_hex"] = "0"
     settings["color_palette"] = "0"
+    settings["last_rgb_btn_color"] = rgb
+
 
     save_setting()
 
@@ -247,11 +292,16 @@ def window_theme_rbg():
                                 background-color: rgb({rgb_color});
                                 ''')
 
+        rgb = rgb_color.split(',')
+        rgb = [int(rgb[0]),int(rgb[1]),int(rgb[2])]
+        color_btn(rgb)
+
         settings["window_theme_dark"] = "0"
         settings["window_theme_white"] = '0'
         settings["window_theme_rbg"] = "1"
         settings["window_theme_hex"] = "0"
         settings["color_palette"] = "0"
+        settings["last_rgb_btn_color"] = rgb
 
         save_setting()
 
@@ -262,6 +312,8 @@ def last_rgb_color():
     setting_window.setStyleSheet(f'''
                                     background-color: rgb({settings["last_rgb_color"]});
                                     ''')
+
+    color_btn(settings["last_rgb_btn_color"])
 
 def window_theme_hex():
     hex_color, ok = QInputDialog.getText(setting_window, 'Введіть HEX коляр', 'Введіть HEX коляр \n(#xxxxxx)')
@@ -274,11 +326,15 @@ def window_theme_hex():
                                         background-color: #{hex_color};
                                         ''')
 
+        rgb = hex_to_rgb(hex_color)
+        color_btn(rgb)
+
         settings["window_theme_dark"] = "0"
         settings["window_theme_white"] = '0'
         settings["window_theme_rbg"] = "0"
         settings["window_theme_hex"] = "1"
         settings["color_palette"] = "0"
+        settings["last_rgb_btn_color"] = rgb
 
         save_setting()
 
@@ -289,6 +345,8 @@ def last_hex_color():
     setting_window.setStyleSheet(f'''
                                     background-color: #{settings["last_hex_color"]};
                                     ''')
+
+    color_btn(settings["last_rgb_btn_color"])
 
 def save_path():
     func_save_path = setting_save_path.text()
@@ -307,6 +365,7 @@ def open_color_palette():
         blue = color.blue()
 
         global last_palette_color
+
         last_palette_color = (f'{red},{green},{blue}')
         settings["last_palette_color"] = last_palette_color
 
@@ -316,6 +375,8 @@ def open_color_palette():
         setting_window.setStyleSheet(f'''
                                         background-color: rgb({last_palette_color});
                                         ''')
+        rgb = [red,green,blue]
+        color_btn(rgb)
 
         settingrb_palette.setChecked(True)
         settingrb_palette.setText(last_palette_color)
@@ -325,6 +386,7 @@ def open_color_palette():
         settings["window_theme_rbg"] = "0"
         settings["window_theme_hex"] = "0"
         settings["color_palette"] = "1"
+        settings["last_rgb_btn_color"] = rgb
 
         save_setting()
 
@@ -337,6 +399,8 @@ def last_palette_color():
         setting_window.setStyleSheet(f'''
                                         background-color: rgb({settings["last_palette_color"]});
                                         ''')
+
+    color_btn(settings["last_rgb_btn_color"])
 
     settings["window_theme_dark"] = "0"
     settings["window_theme_white"] = "0"
@@ -351,7 +415,7 @@ def last_palette_color():
 setting_window = QWidget()
 setting_window.setWindowIcon(QIcon('pict/Settings_icon'))
 
-setting_window.setFixedSize(570, 170)
+setting_window.setFixedSize(590, 190)
 setting_window.setWindowTitle("Налаштування")
 
 setting_osn_layout = QHBoxLayout()
@@ -470,13 +534,6 @@ btn_hide.clicked.connect(show_col2)
 all_button = [btn_hide,btn_setting,btn_tags_search,btn_tags_del,btn_tags_add,btn_txt_save,btn_note_create,btn_note_del,btn_note_save,
               setting_btn_palette,setting_btn_save_path,setting_btn_save_transparency]
 
-
-for btn in all_button:
-    btn.setStyleSheet('''
-    background-color: rgb(230,230,230);
-    border: 1px solid rgb(195,195,195);
-    border-radius:2;
-                            ''')
 
 
 with open('notes.json', 'r', encoding='utf-8') as file:

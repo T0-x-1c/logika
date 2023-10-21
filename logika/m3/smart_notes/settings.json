@@ -1,7 +1,22 @@
 {
     "color_palette": "1",
-    "last_hex_color": "ffffff",
-    "last_palette_color": "243,255,255",
+    "last_hex_color": "C4C4C4",
+    "last_palette_color": "31,23,255",
+    "last_rgb_btn_color": [
+        60,
+        60,
+        255
+    ],
+    "last_rgb_btn_color_1": [
+        40,
+        40,
+        235
+    ],
+    "last_rgb_btn_color_2": [
+        5,
+        5,
+        200
+    ],
     "last_rgb_color": "111,111,111",
     "save_path": "save",
     "value": 10,

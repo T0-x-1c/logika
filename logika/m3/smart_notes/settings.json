@@ -1,17 +1,17 @@
 {
-    "color_palette": "1",
+    "color_palette": true,
     "last_hex_color": "93F1F7",
-    "last_palette_color": "216,236,255",
+    "last_palette_color": "192,201,255",
     "last_rgb_btn_color": [
-        216,
-        236,
+        192,
+        201,
         255
     ],
     "last_rgb_color": "111,111,111",
     "save_path": "save",
     "value": 10,
-    "window_theme_dark": "0",
-    "window_theme_hex": "0",
-    "window_theme_rbg": "0",
-    "window_theme_white": "0"
+    "window_theme_dark": false,
+    "window_theme_hex": false,
+    "window_theme_rbg": false,
+    "window_theme_white": false
 }

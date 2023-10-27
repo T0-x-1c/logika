@@ -17,7 +17,7 @@ window = QWidget()
 
 window.resize(700,500)
 window.setStyleSheet('''
-    background-color: rgb(227,243,243)
+    background-color: rgb(234,255,255)
     ''')
 
 col1 = QVBoxLayout()
@@ -27,9 +27,18 @@ osn_layout = QHBoxLayout()
 
 btn_folder = QPushButton('Папка')
 btn_folder.setStyleSheet('''
-    background-color: rgb(242,224,224);
-    border: 3px solid rgb(255,102,102);
-    border-radius:4px;
+    QPushButton {
+        background-color: rgb(242,224,224);
+        border: 3px solid rgb(255,102,102);
+        border-radius:4px;
+        }
+
+    
+    QPushButton:hover {
+        background-color: rgb(255,244,244);
+        border: 3px solid rgb(255,122,122);
+        border-radius:4px;
+        }
                             ''')
 lst_folder = QListWidget()
 
@@ -46,14 +55,17 @@ all_btn = [btn_pict_left, btn_pict_right, btn_mirror, btn_sharpness, btn_bw]
 for btn in all_btn:
     btn.setStyleSheet('''
     QPushButton {
-        background-color: rgb(214,255,255);
+        background-color: rgb(204,255,255);
         border: 3px solid rgb(153,255,255);
         border-radius:4px;
         }
     
     QPushButton:hover {
-            color: yellow;
+        background-color: rgb(224,255,255);
+        border: 3px solid rgb(183,255,255);
+        border-radius:4px;
         }
+        
                         ''')
 
 col1.addWidget(btn_folder)

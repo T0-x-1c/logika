@@ -1,10 +1,10 @@
 {
-    "color_palette": true,
+    "color_palette": false,
     "last_hex_color": "93F1F7",
-    "last_palette_color": "197,249,255",
+    "last_palette_color": "224,255,238",
     "last_rgb_btn_color": [
-        197,
-        249,
+        255,
+        255,
         255
     ],
     "last_rgb_color": "111,111,111",
@@ -13,5 +13,5 @@
     "window_theme_dark": false,
     "window_theme_hex": false,
     "window_theme_rbg": false,
-    "window_theme_white": false
+    "window_theme_white": true
 }

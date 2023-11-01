@@ -8,18 +8,21 @@ from PyQt5.QtWidgets import (
     QPushButton, QListWidget, QHBoxLayout, QVBoxLayout
 )
 
+import json
 from PIL import Image, ImageFilter
 # from PIL.ImageQt import ImageQt  # Для перенесення графіки з Pillow до QT
 # from PIL.ImageFilter import SHARPEN
 
 app = QApplication([])
 window = QWidget()
+from setting_function import *
 
 window.resize(700,500)
 window.setStyleSheet('''
     background-color: rgb(234,255,255)
     ''')
 
+col0 = QHBoxLayout()
 col1 = QVBoxLayout()
 col2 = QHBoxLayout()
 col3 = QVBoxLayout()
@@ -49,8 +52,9 @@ btn_pict_right = QPushButton('Право')
 btn_mirror = QPushButton('Дзеркало')
 btn_sharpness = QPushButton('Різкість')
 btn_bw = QPushButton('Ч/Б')
+btn_setting = QPushButton('⚙️')
 
-all_btn = [btn_pict_left, btn_pict_right, btn_mirror, btn_sharpness, btn_bw]
+all_btn = [btn_pict_left, btn_pict_right, btn_mirror, btn_sharpness, btn_bw, btn_setting]
 
 for btn in all_btn:
     btn.setStyleSheet('''
@@ -68,7 +72,10 @@ for btn in all_btn:
         
                         ''')
 
-col1.addWidget(btn_folder)
+col0.addWidget(btn_setting, stretch=1)
+col0.addWidget(btn_folder, stretch=4)
+
+col1.addLayout(col0)
 col1.addWidget(lst_folder)
 
 col2.addWidget(btn_pict_left)
@@ -133,10 +140,16 @@ def showChosenImage():
     full_path = os.path.join(workdir, file_name)
     work_img.show_image(full_path)
 
+
+def show_seting():
+    setting_window.show()
+
 work_img = ImageProcesor()
 
 btn_folder.clicked.connect(show_file)
 lst_folder.itemClicked.connect(showChosenImage)
+
+btn_setting.clicked.connect(show_seting)
 
 window.setLayout(osn_layout)
 window.show()

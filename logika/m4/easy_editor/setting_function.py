@@ -3,11 +3,17 @@ from PyQt5.QtGui import QIcon
 import sys
 import json
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QTextEdit, QLabel,
-    QListWidget, QPushButton, QLineEdit, QHBoxLayout, QVBoxLayout, QInputDialog,
-    QTableWidget,  QListWidgetItem, QFormLayout,
-    QGroupBox, QButtonGroup, QRadioButton, QSpinBox, QMessageBox, QColorDialog)
+    QWidget, QLabel, QPushButton, QLineEdit, QHBoxLayout, QVBoxLayout, QInputDialog,
+    QRadioButton, QSpinBox, QColorDialog)
 
+
+'''btn'''
+btn_pict_left = QPushButton('Ліво')
+btn_pict_right = QPushButton('Право')
+btn_mirror = QPushButton('Дзеркало')
+btn_sharpness = QPushButton('Різкість')
+btn_bw = QPushButton('Ч/Б')
+btn_setting = QPushButton('⚙️')
 
 '''Функції налаштувань'''
 
@@ -96,35 +102,40 @@ def last_rgb_color():
                                     ''')
 
 
-def window_theme_hex():
-    hex_color, ok = QInputDialog.getText(setting_window, 'Введіть HEX коляр', 'Введіть HEX коляр \n(#xxxxxx)')
-    if ok:
-        settings["last_hex_color"] = hex_color
-        window.setStyleSheet(f'''
-                                background-color: #{hex_color};
-                                ''')
-        setting_window.setStyleSheet(f'''
-                                        background-color: #{hex_color};
-                                        ''')
+def window_theme_standart():
+    all_btn = [btn_pict_left, btn_pict_right, btn_mirror, btn_sharpness, btn_bw, btn_setting]
 
-        rgb = hex_to_rgb(hex_color)
+    for btn in all_btn:
+        btn.setStyleSheet('''
+        QPushButton {
+            background-color: rgb(204,255,255);
+            border: 3px solid rgb(153,255,255);
+            border-radius:4px;
+            }
 
-        settings["window_theme_dark"] = False
-        settings["window_theme_white"] = False
-        settings["window_theme_rbg"] = False
-        settings["window_theme_hex"] = True
-        settings["color_palette"] = False
-        settings["last_rgb_btn_color"] = rgb
+        QPushButton:hover {
+            background-color: rgb(224,255,255);
+            border: 3px solid rgb(183,255,255);
+            border-radius:4px;
+            }
 
-        save_setting()
-
-def last_hex_color():
-    window.setStyleSheet(f'''
-                            background-color: #{settings["last_hex_color"]};
                             ''')
+
+    window.setStyleSheet('''
+        background-color: rgb(234,255,255)
+        ''')
+
     setting_window.setStyleSheet(f'''
-                                    background-color: #{settings["last_hex_color"]};
-                                    ''')
+        background-color: rgb(234,255,255);
+        ''')
+
+    settings["window_theme_dark"] = False
+    settings["window_theme_white"] = False
+    settings["window_theme_rbg"] = False
+    settings["window_theme_standart"] = True
+    settings["color_palette"] = False
+
+    save_setting()
 
 
 def save_path():
@@ -220,15 +231,14 @@ setting_spin_transparency.setMaximum(10)
 
 setting_dark_theme = QRadioButton('Ввімкнути темну тему')
 setting_white_theme = QRadioButton('Ввімкнути світлу тему')
-setting_white_theme.setChecked(True)
 
-setting_hex_theme = QRadioButton('Змінити колір фону HEX')
+setting_standart_theme = QRadioButton('Встановити все по замовчуваням')
 setting_rgb_theme = QRadioButton('Змінити колір фону RGB')
 
 settingrb_palette = QRadioButton()
 setting_btn_palette = QPushButton('Відкрити палітру')
 
-setting_save_path_lb = QLabel('Введіть шлях \nдля збереження .txt формату')
+setting_save_path_lb = QLabel('Введіть шлях \nдля збереження зображень')
 
 setting_save_path = QLineEdit()
 setting_save_path.setPlaceholderText('Введіть шлях для збереження')
@@ -245,7 +255,7 @@ setting_col2.addWidget(setting_btn_save_transparency)
 setting_row2.addWidget(setting_dark_theme)
 setting_row2.addWidget(setting_white_theme)
 setting_row2.addWidget(setting_rgb_theme)
-setting_row2.addWidget(setting_hex_theme)
+setting_row2.addWidget(setting_standart_theme)
 
 setting_col4.addWidget(settingrb_palette)
 setting_col4.addWidget(setting_btn_palette)
@@ -272,7 +282,7 @@ setting_btn_save_transparency.clicked.connect(lambda: transparency_window(settin
 setting_dark_theme.clicked.connect(window_theme_dark)
 setting_white_theme.clicked.connect(window_theme_white)
 setting_rgb_theme.clicked.connect(window_theme_rbg)
-setting_hex_theme.clicked.connect(window_theme_hex)
+setting_standart_theme.clicked.connect(window_theme_standart)
 
 settingrb_palette.clicked.connect(last_palette_color)
 setting_btn_palette.clicked.connect(open_color_palette)

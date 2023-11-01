@@ -1,17 +1,16 @@
 {
     "color_palette": false,
-    "last_hex_color": "93F1F7",
-    "last_palette_color": "158,255,129",
+    "last_palette_color": "185,180,255",
     "last_rgb_btn_color": [
-        158,
-        255,
-        129
+        185,
+        180,
+        255
     ],
-    "last_rgb_color": "111,111,111",
     "save_path": "save",
     "value": 10,
     "window_theme_dark": false,
     "window_theme_hex": false,
     "window_theme_rbg": false,
-    "window_theme_white": true
+    "window_theme_standart": true,
+    "window_theme_white": false
 }

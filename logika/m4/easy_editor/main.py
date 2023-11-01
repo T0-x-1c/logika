@@ -22,6 +22,10 @@ window.setStyleSheet('''
     background-color: rgb(234,255,255)
     ''')
 
+setting_window.setStyleSheet(f'''
+    background-color: rgb(234,255,255);
+    ''')
+
 col0 = QHBoxLayout()
 col1 = QVBoxLayout()
 col2 = QHBoxLayout()
@@ -150,6 +154,30 @@ btn_folder.clicked.connect(show_file)
 lst_folder.itemClicked.connect(showChosenImage)
 
 btn_setting.clicked.connect(show_seting)
+
+
+'''загрузка файлів налаштувань'''
+if settings["window_theme_dark"]:
+    setting_dark_theme.setChecked(True)
+    window_theme_dark()
+
+if settings["window_theme_white"]:
+    setting_white_theme.setChecked(True)
+    window_theme_white()
+
+if settings["window_theme_rbg"]:
+    setting_rgb_theme.setChecked(True)
+    last_rgb_color()
+
+if settings["window_theme_standart"]:
+    setting_standart_theme.setChecked(True)
+    window_theme_standart()
+
+if settings["color_palette"]:
+    settingrb_palette.setChecked(True)
+    last_palette_color()
+
+transparency_window(settings["value"])
 
 window.setLayout(osn_layout)
 window.show()

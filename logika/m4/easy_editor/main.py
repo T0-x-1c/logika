@@ -17,6 +17,7 @@ app = QApplication([])
 window = QWidget()
 from setting_function import *
 
+window.setWindowIcon(QIcon('pict/icon.png'))
 window.resize(700,500)
 window.setStyleSheet('''
     background-color: rgb(234,255,255)

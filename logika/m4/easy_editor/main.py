@@ -139,6 +139,37 @@ class ImageProcesor():
         lb_pict.setPixmap(pixmapeimage)
         lb_pict.show()
 
+    def SaveAndShowImage(self):
+        path = os.path.join(workdir, self.save_dir)
+
+        if not (os.path.exists(path) or os.path.isdir(path)):
+            os.mkdir(path)
+
+        image_path = os.path.join(path, self.filename)
+
+        self.original.save(image_path)
+        self.show_image(image_path)
+
+    def do_bm(self):
+        self.original = self.original.convert('L')
+        self.SaveAndShowImage()
+
+    def do_left(self):
+        self.original = self.original.transpose(Image.ROTATE_90)
+        self.SaveAndShowImage()
+
+    def do_right(self):
+        self.original = self.original.transpose(Image.ROTATE_270)
+        self.SaveAndShowImage()
+
+    def do_flip(self):
+        self.original = self.original.transpose(Image.FLIP_LEFT_RIGHT)
+        self.SaveAndShowImage()
+
+    def do_sharp(self):
+        self.original = self.original.filter(ImageFilter.SHARPEN)
+        self.SaveAndShowImage()
+
 def showChosenImage():
     file_name = lst_folder.currentItem().text()
     work_img.loadimage(file_name)
@@ -155,6 +186,12 @@ btn_folder.clicked.connect(show_file)
 lst_folder.itemClicked.connect(showChosenImage)
 
 btn_setting.clicked.connect(show_seting)
+
+btn_pict_left.clicked.connect(work_img.do_left)
+btn_pict_right.clicked.connect(work_img.do_right)
+btn_bw.clicked.connect(work_img.do_bm)
+btn_mirror.clicked.connect(work_img.do_flip)
+btn_sharpness.clicked.connect(work_img.do_sharp)
 
 
 '''загрузка файлів налаштувань'''

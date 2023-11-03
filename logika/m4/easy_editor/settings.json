@@ -1,12 +1,12 @@
 {
     "color_palette": false,
-    "last_palette_color": "198,218,255",
+    "last_palette_color": "255,189,248",
     "last_rgb_btn_color": [
-        198,
-        218,
-        255
+        255,
+        189,
+        248
     ],
-    "save_path": "save",
+    "save_path": "modified",
     "value": 10,
     "window_theme_dark": false,
     "window_theme_hex": false,

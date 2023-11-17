@@ -116,11 +116,12 @@ def show_file():
     lst_folder.clear()
     lst_folder.addItems(filtered_img)
 
+
 class ImageProcesor():
     def __init__(self):
         self.filename = None
         self.original = None
-        self.save_dir = 'Modifiet/'
+        self.save_dir = settings["save_path"]
 
     def loadimage(self, fielname):
         self.filename = fielname
@@ -153,6 +154,7 @@ class ImageProcesor():
     def do_bm(self):
         self.original = self.original.convert('L')
         self.SaveAndShowImage()
+        image_bm = True
 
     def do_left(self):
         self.original = self.original.transpose(Image.ROTATE_90)

@@ -37,12 +37,17 @@ class Player(GameSprite):
 
 
 class Enemy(GameSprite):
+    def __init__(self, player_image, player_x, player_y, player_speed, min_x, max_x):
+        super().__init__(player_image, player_x, player_y, player_speed)
+        self.min_x = min_x
+        self.max_x = max_x
+
     direction = 'left'
     def run(self):
-        if self.rect.x <= 450:
+        if self.rect.x <= self.min_x:
             self.direction = 'right'
 
-        elif self.rect.x >= 600:
+        elif self.rect.x >= self.max_x:
             self.direction = 'left'
 
         if self.direction == 'left':
@@ -60,7 +65,7 @@ window = display.set_mode((win_w, win_h))
 background = scale(image.load("background.jpg"), (win_w, win_h))
 
 player = Player('hero.png', 5, win_h - 70, 4)
-cyborg = Enemy('cyborg.png', win_w - 100, win_h - 300, 2)
+cyborg = Enemy('cyborg.png', win_w - 100, win_h - 300, 2, min_x = 450, max_x = 600)
 money = GameSprite('treasure.png', win_w - 150, win_h - 90, 0)
 
 clock = time.Clock()

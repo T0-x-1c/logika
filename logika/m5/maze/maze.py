@@ -57,6 +57,23 @@ class Enemy(GameSprite):
             self.rect.x += self.speed
 
 
+class Wall(sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        self.width = width
+        self.height = height
+        self.color = (51,255,181)
+
+        self.image = Surface((width, height))
+
+        self.image.fill(self.color)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+
+    def reset(self):
+        window.blit(self.image, (self.rect.x, self.rect.y))
 
 win_w = 700
 win_h = 500
@@ -64,9 +81,17 @@ window = display.set_mode((win_w, win_h))
 
 background = scale(image.load("background.jpg"), (win_w, win_h))
 
+font.init()
+f = font.Font(None, 40)
+win = f.render("Win!!!", True, (255,255,0))
+lose = f.render("Lose!!!", True, (255,0,0))
+
 player = Player('hero.png', 5, win_h - 70, 4)
 cyborg = Enemy('cyborg.png', win_w - 100, win_h - 300, 2, min_x = 450, max_x = 600)
 money = GameSprite('treasure.png', win_w - 150, win_h - 90, 0)
+
+wall1 = Wall(100, 350, 111, 6)
+
 
 clock = time.Clock()
 FPS = 60
@@ -76,6 +101,16 @@ finish = False
 mixer.init()
 mixer.music.load("jungles.ogg")
 mixer.music.play(-1)
+
+money_sound = mixer.Sound("money.ogg")
+kick_sound = mixer.Sound("kick.ogg")
+
+all_wall = [wall1]
+for wall in all_wall:
+    if sprite.collide_rect(player, wall1):
+        window.blit(lose, (300, 250))
+        finish = True
+        kick_sound.play()
 
 while game:
     for e in event.get():
@@ -88,15 +123,25 @@ while game:
         player.reset()
         cyborg.reset()
         money.reset()
+        wall1.reset()
 
         cyborg.run()
         player.run()
 
-    else:
-        window.blit(background, (0, 0))
+        if sprite.collide_rect(player, money):
+            window.blit(win, (300,250))
+            finish = True
+            money_sound.play()
 
-        player.reset()
-        cyborg.reset()
+        if sprite.collide_rect(player, wall1):
+            window.blit(lose, (300,250))
+            finish = True
+            kick_sound.play()
+
+        if sprite.collide_rect(player, cyborg):
+            window.blit(lose, (300,250))
+            finish = True
+            kick_sound.play()
 
     display.update()
     clock.tick(FPS)

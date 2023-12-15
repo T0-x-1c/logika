@@ -10,7 +10,7 @@ from random import randint
 class GameSprite(sprite.Sprite):
     def __init__(self, player_image, player_x, player_y, player_speed):
         super().__init__()
-        self.image = scale(load(player_image), (70,70))
+        self.image = scale(load(player_image), (60,60))
         self.speed = player_speed
 
         self.rect = self.image.get_rect()
@@ -86,12 +86,9 @@ f = font.Font(None, 40)
 win = f.render("Win!!!", True, (255,255,0))
 lose = f.render("Lose!!!", True, (255,0,0))
 
-player = Player('hero.png', 5, win_h - 70, 4)
-cyborg = Enemy('cyborg.png', win_w - 100, win_h - 300, 2, min_x = 450, max_x = 600)
+player = Player('hero.png', 5, win_h - 70, 3)
+cyborg = Enemy('cyborg.png', win_w - 100, win_h - 300, 2, min_x = 480, max_x = 600)
 money = GameSprite('treasure.png', win_w - 150, win_h - 90, 0)
-
-wall1 = Wall(100, 350, 111, 6)
-
 
 clock = time.Clock()
 FPS = 60
@@ -105,12 +102,19 @@ mixer.music.play(-1)
 money_sound = mixer.Sound("money.ogg")
 kick_sound = mixer.Sound("kick.ogg")
 
-all_wall = [wall1]
-for wall in all_wall:
-    if sprite.collide_rect(player, wall1):
-        window.blit(lose, (300, 250))
-        finish = True
-        kick_sound.play()
+wall1 = Wall(100, 330, 110, 6)
+wall2 = Wall(100, 420, 190, 6)
+wall3 = Wall(206, 35, 6, 300)
+wall4 = Wall(286, 115, 6, 369)
+wall5 = Wall(206, 35, 450, 6)
+wall6 = Wall(286, 115, 100, 6)
+wall7 = Wall(386, 115, 6, 140)
+wall8 = Wall(302, 255, 90, 6)
+wall9 = Wall(456, 115, 6, 215)
+wall10 = Wall(382, 325, 80, 6)
+wall11 = Wall(302, 255, 6, 215)
+
+all_wall = [wall1, wall2, wall3, wall4, wall5, wall6, wall7, wall8, wall9, wall10, wall11]
 
 while game:
     for e in event.get():
@@ -123,7 +127,9 @@ while game:
         player.reset()
         cyborg.reset()
         money.reset()
-        wall1.reset()
+
+        for wall in all_wall:
+            wall.reset()
 
         cyborg.run()
         player.run()
@@ -133,10 +139,11 @@ while game:
             finish = True
             money_sound.play()
 
-        if sprite.collide_rect(player, wall1):
-            window.blit(lose, (300,250))
-            finish = True
-            kick_sound.play()
+        for wall in all_wall:
+            if sprite.collide_rect(player, wall):
+                window.blit(lose, (300, 250))
+                finish = True
+                kick_sound.play()
 
         if sprite.collide_rect(player, cyborg):
             window.blit(lose, (300,250))

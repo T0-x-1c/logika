@@ -23,6 +23,7 @@ class GameSprite(sprite.Sprite):
     def reset(self):
         window.blit(self.image, (self.rect.x, self.rect.y))
 
+bullets = sprite.Group()
 
 class Player(GameSprite):
     def update(self):
@@ -34,16 +35,23 @@ class Player(GameSprite):
             self.rect.x -= self.speed
 
     def fire(self):
-        pass
+        bullet = Bullet("bullet.png", self.rect.x+30, win_height-140, 20, 20, 15)
+        bullets.add(bullet)
+
 
 class Enemy(GameSprite):
-    def update(self):
+    def update(self, pass_counted):
         self.rect.y += self.speed
         global lost
         if self.rect.y > win_height + 100:
             self.rect.y = -100
             self.rect.x = randint(0, win_width - 100)
-            lost += 1
+            if pass_counted:
+                lost += 1
+
+class Bullet(GameSprite):
+    def update(self):
+        self.rect.y -= self.speed
 
 
 win_width = 700
@@ -53,9 +61,10 @@ window = display.set_mode((win_width, win_height))
 background = scale(load("galaxy.jpg"), (win_width, win_height))
 ship = Player("rocket.png", 320, win_height-120, 80, 100, 5)
 
+
 monsters = sprite.Group()
 for i in range(4):
-    en = Enemy("ufo.png", randint(0, win_width-100), -100, 100, 60, randint(1,2))
+    en = Enemy("ufo.png", randint(0, win_width-100), -100, 100, 60, randint(1,3))
     monsters.add(en)
 
 asteroids = sprite.Group()
@@ -91,11 +100,18 @@ while game:
         window.blit(font_score, (0,40))
         monsters.draw(window)
         asteroids.draw(window)
+        bullets.draw(window)
         ship.reset()
 
 
-        monsters.update()
-        asteroids.update()
+        monsters.update(True)
+        asteroids.update(False)
+        bullets.update()
         ship.update()
+
+        key_pressed = key.get_pressed()
+        if key_pressed[K_f]:
+            ship.fire()
+
     display.update()
     clock.tick(FPS)

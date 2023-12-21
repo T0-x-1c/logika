@@ -90,6 +90,9 @@ while game:
     for e in event.get():
         if e.type == QUIT:
             game = False
+        if e.type == KEYDOWN:
+            if e.key == K_f:
+                ship.fire()
 
     if not finish:
         font_lose = font1.render(f"Пропущено :{lost}", True, (255, 255, 255))
@@ -109,9 +112,14 @@ while game:
         bullets.update()
         ship.update()
 
-        key_pressed = key.get_pressed()
-        if key_pressed[K_f]:
-            ship.fire()
+        if sprite.groupcollide(bullets, monsters, True, True):
+            score += 1
+
+            en = Enemy("ufo.png", randint(0, win_width - 100), -100, 100, 60, randint(1, 3))
+            monsters.add(en)
+
+        if sprite.spritecollide(ship, asteroids, False):
+            finish = True
 
     display.update()
     clock.tick(FPS)

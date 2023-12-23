@@ -111,6 +111,9 @@ bg_misic_menu.play(-1)
 
 reload_sound = mixer.Sound("recharge.ogg")
 
+fire_sound = mixer.Sound("fire.ogg")
+fire_sound.set_volume(0.1)
+
 skip_sound = mixer.Sound("menu/skip.mp3")
 
 font.init()
@@ -127,6 +130,7 @@ while game:
                 if e.key == K_f:
                     if ship.ammunition > 0 and not reload:
                         ship.fire()
+                        fire_sound.play()
 
                     if ship.ammunition == 0 and not reload:
                         reload = True

@@ -69,6 +69,11 @@ window = display.set_mode((win_width, win_height))
 background = scale(load("galaxy.jpg"), (win_width, win_height))
 ship = Player("rocket.png", 320, win_height-120, 80, 100, 5, 10)
 
+menu_background = scale(load("menu/bg_menu.png"), (win_width, win_height))
+btn_play = scale(load("menu/play.png"), (145, 50))
+btn_setting = scale(load("menu/setting.png"), (145, 40))
+btn_quit = scale(load("menu/quit.png"), (145, 50))
+
 monsters = sprite.Group()
 for i in range(4):
     en = Enemy("ufo.png", randint(0, win_width-100), -100, 100, 60, randint(1,3))
@@ -83,15 +88,26 @@ finish = False
 game = True
 reload = False
 
+screen = 'menu'
+
 clock = time.Clock()
 FPS = 60
 
 mixer.init()
-mixer.music.load("space.ogg")
-mixer.music.play(-1)
-mixer.music.set_volume(0.05)
+
+# mixer.music.load("space.ogg")
+# mixer.music.play(-1)
+# mixer.music.set_volume(0.05)
+
+bg_misic = mixer.Sound("space.ogg")
+bg_misic.set_volume(0.05)
+
+bg_misic_menu = mixer.Sound("bg_music.mp3")
+bg_misic_menu.set_volume(0.05)
 
 reload_sound = mixer.Sound("recharge.ogg")
+
+skip_sound = mixer.Sound("menu/skip.mp3")
 
 font.init()
 font1 = font.SysFont('Aria', 30)
@@ -99,59 +115,82 @@ font1 = font.SysFont('Aria', 30)
 txt_gameover = font1.render("GAME OVER", True, (255, 20, 20))
 
 while game:
-    for e in event.get():
-        if e.type == QUIT:
-            game = False
-        if e.type == KEYDOWN:
-            if e.key == K_f:
-                if ship.ammunition > 0 and not reload:
-                    ship.fire()
+    if screen == 'game':
+        for e in event.get():
+            if e.type == QUIT:
+                game = False
+            if e.type == KEYDOWN:
+                if e.key == K_f:
+                    if ship.ammunition > 0 and not reload:
+                        ship.fire()
 
-                if ship.ammunition == 0 and not reload:
-                    reload = True
-                    start_reload = timer()
+                    if ship.ammunition == 0 and not reload:
+                        reload = True
+                        start_reload = timer()
 
-    if not finish:
-        txt_lose = font1.render(f"Пропущено :{lost}", True, (255, 255, 255))
-        txt_score = font1.render(f"Рахунок :{score}", True, (255, 255, 255))
-        txt_ammo = font1.render(f"ammo : {ship.ammunition}", True, (230, 230, 230))
+        if not finish:
+            bg_misic.play(-1)
 
-        window.blit(background,(0,0))
-        window.blit(txt_lose, (0,0))
-        window.blit(txt_score, (0,40))
-        window.blit(txt_ammo, (600,0))
-        monsters.draw(window)
-        asteroids.draw(window)
-        bullets.draw(window)
-        ship.reset()
+            txt_lose = font1.render(f"Пропущено :{lost}", True, (255, 255, 255))
+            txt_score = font1.render(f"Рахунок :{score}", True, (255, 255, 255))
+            txt_ammo = font1.render(f"ammo : {ship.ammunition}", True, (230, 230, 230))
+
+            window.blit(background,(0,0))
+            window.blit(txt_lose, (0,0))
+            window.blit(txt_score, (0,40))
+            window.blit(txt_ammo, (600,0))
+            monsters.draw(window)
+            asteroids.draw(window)
+            bullets.draw(window)
+            ship.reset()
 
 
-        monsters.update(True)
-        asteroids.update(False)
-        bullets.update()
-        ship.update()
+            monsters.update(True)
+            asteroids.update(False)
+            bullets.update()
+            ship.update()
 
-        if sprite.groupcollide(bullets, monsters, True, True):
-            score += 1
-            en = Enemy("ufo.png", randint(0, win_width - 100), -100, 100, 60, randint(1, 3))
-            monsters.add(en)
+            if sprite.groupcollide(bullets, monsters, True, True):
+                score += 1
+                en = Enemy("ufo.png", randint(0, win_width - 100), -100, 100, 60, randint(1, 3))
+                monsters.add(en)
 
-        if sprite.spritecollide(ship, asteroids, False) or lost == 5:
-            finish = True
-            window.blit(txt_gameover, (280, 250))
+            if sprite.spritecollide(ship, asteroids, False) or lost == 5:
+                finish = True
+                window.blit(txt_gameover, (280, 250))
 
-        if reload:
-            now_time = timer()
-            delta = now_time - start_reload
-            if delta <= 2:
-                txt_reload = font1.render("Зачекайте йде перезарядка", True, (255, 40, 40))
-                window.blit(txt_reload, (200, 350))
-            else:
-                ship.ammunition = 10
-                reload = False
+            if reload:
+                now_time = timer()
+                delta = now_time - start_reload
+                if delta <= 2:
+                    txt_reload = font1.render("Зачекайте йде перезарядка", True, (255, 40, 40))
+                    window.blit(txt_reload, (200, 350))
+                else:
+                    ship.ammunition = 10
+                    reload_sound.play()
+                    reload = False
 
-    else:
-        pass
+        else:
+            pass
+
+    if screen == 'menu':
+        for e in event.get():
+            if e.type == QUIT:
+                game = False
+
+        if e.type == MOUSEBUTTONDOWN:
+            mouse_click = e.pos
+            print(mouse_click, btn_play.get_rect())
+            if btn_play.get_rect().collidepoint(mouse_click):
+                skip_sound.play()
+                screen = 'game'
+
+        bg_misic_menu.play(-1)
+        window.blit(menu_background, (0, 0))
+
+        window.blit(btn_play, (280, 170))
+        window.blit(btn_setting, (280, 240))
+        window.blit(btn_quit, (280, 300))
 
     display.update()
     clock.tick(FPS)

@@ -105,9 +105,9 @@ bg_misic.set_volume(0.05)
 bg_misic_menu = mixer.Sound("bg_music.mp3")
 bg_misic_menu.set_volume(0.05)
 
-bg_misic_menu.play(-1)
 bg_misic.play(-1)
 mixer.pause()
+bg_misic_menu.play(-1)
 
 reload_sound = mixer.Sound("recharge.ogg")
 
@@ -133,7 +133,6 @@ while game:
                         start_reload = timer()
 
         if not finish:
-            bg_misic.play(-1)
 
             txt_lose = font1.render(f"Пропущено :{lost}", True, (255, 255, 255))
             txt_score = font1.render(f"Рахунок :{score}", True, (255, 255, 255))
@@ -182,7 +181,6 @@ while game:
             if e.type == QUIT:
                 game = False
 
-        bg_misic_menu.play(-1)
         window.blit(menu_background, (0, 0))
 
         btn_play.reset()

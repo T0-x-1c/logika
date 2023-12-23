@@ -105,6 +105,10 @@ bg_misic.set_volume(0.05)
 bg_misic_menu = mixer.Sound("bg_music.mp3")
 bg_misic_menu.set_volume(0.05)
 
+bg_misic_menu.play(-1)
+bg_misic.play(-1)
+mixer.pause()
+
 reload_sound = mixer.Sound("recharge.ogg")
 
 skip_sound = mixer.Sound("menu/skip.mp3")
@@ -165,9 +169,9 @@ while game:
                 if delta <= 2:
                     txt_reload = font1.render("Зачекайте йде перезарядка", True, (255, 40, 40))
                     window.blit(txt_reload, (200, 350))
+                    reload_sound.play()
                 else:
                     ship.ammunition = 10
-                    reload_sound.play()
                     reload = False
 
         else:
@@ -188,8 +192,10 @@ while game:
         if e.type == MOUSEBUTTONDOWN:
             mouse_click = e.pos
             if btn_play.rect.collidepoint(mouse_click):
-                skip_sound.play()
                 bg_misic_menu.stop()
+                skip_sound.play()
+                mixer.unpause()
+
                 screen = 'game'
 
     display.update()

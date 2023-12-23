@@ -70,7 +70,7 @@ background = scale(load("galaxy.jpg"), (win_width, win_height))
 ship = Player("rocket.png", 320, win_height-120, 80, 100, 5, 10)
 
 menu_background = scale(load("menu/bg_menu.png"), (win_width, win_height))
-btn_play = scale(load("menu/play.png"), (145, 50))
+btn_play = GameSprite('menu/play.png', 280,170,145, 50,0)
 btn_setting = scale(load("menu/setting.png"), (145, 40))
 btn_quit = scale(load("menu/quit.png"), (145, 50))
 
@@ -178,19 +178,19 @@ while game:
             if e.type == QUIT:
                 game = False
 
-        if e.type == MOUSEBUTTONDOWN:
-            mouse_click = e.pos
-            print(mouse_click, btn_play.get_rect())
-            if btn_play.get_rect().collidepoint(mouse_click):
-                skip_sound.play()
-                screen = 'game'
-
         bg_misic_menu.play(-1)
         window.blit(menu_background, (0, 0))
 
-        window.blit(btn_play, (280, 170))
+        btn_play.reset()
         window.blit(btn_setting, (280, 240))
         window.blit(btn_quit, (280, 300))
+
+        if e.type == MOUSEBUTTONDOWN:
+            mouse_click = e.pos
+            if btn_play.rect.collidepoint(mouse_click):
+                skip_sound.play()
+                bg_misic_menu.stop()
+                screen = 'game'
 
     display.update()
     clock.tick(FPS)

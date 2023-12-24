@@ -1,23 +1,20 @@
 #Створи власний Шутер!
+import pygame
 from pygame import *
 from pygame.sprite import Sprite
 from pygame.transform import scale, flip
 from pygame.image import load
 from random import randint
 from time import time as timer
+import pygame_widgets
+from pygame_widgets.slider import Slider
+from pygame_widgets.textbox import TextBox
 
-global lost
-global score
+pygame.init()
+mixer.init()
+
 lost = 0
 score = 0
-
-# def button_illumination(btn,standart_image, custom_image, x, y, width, hight, btn_illumination):
-#     if btn_illumination == True:
-#         btn = GameSprite(f'{custom_image}', x, y, width, hight, 0)
-#     else:
-#         btn = GameSprite(f'{standart_image}', x, y, width, hight, 0)
-#
-#     return btn
 
 def restart(monsters, asteroids):
     monsters.empty()
@@ -34,10 +31,6 @@ def restart(monsters, asteroids):
     ship.rect.x = 320
     ship.hp = 3
     ship.ammunition = 10
-    score = 0
-    lost = 0
-
-
 
 
 class GameSprite(sprite.Sprite):
@@ -108,7 +101,19 @@ btn_quit = GameSprite('menu/quit.png', 280, 300, 145, 50, 0)
 
 btn_restart = GameSprite('menu/restart.png', 270, 300, 145, 40, 0)
 btn_menu = GameSprite('menu/menu.png', 290, 350, 110, 30, 0)
+
 btn_back = GameSprite('menu/back_button.png', 10, 10, 55, 40, 0)
+btn_save = GameSprite('menu/save.png', 30, 430, 110, 30, 0)
+
+music_loudness = Slider(window, 470, 100, 150, 10, min=0, max=1, step=0.01, handleColour = (180, 245, 245), handleRadius=15)
+music_loudness.setValue(0.05)
+music_output = TextBox(window, 460, 130, 50, 30, fontSize=20)
+music_output.disable()
+
+game_sound_loudness = Slider(window, 470, 220, 150, 10, min=0, max=1, step=0.01, handleColour = (180, 245, 245), handleRadius=15)
+game_sound_loudness.setValue(0.3)
+game_sound_output = TextBox(window, 460, 250, 50, 30, fontSize=20)
+game_sound_output.disable()
 
 
 monsters = sprite.Group()
@@ -130,12 +135,6 @@ screen = 'menu'
 clock = time.Clock()
 FPS = 60
 
-mixer.init()
-
-# mixer.music.load("space.ogg")
-# mixer.music.play(-1)
-# mixer.music.set_volume(0.05)
-
 bg_misic = mixer.Sound("sounds\space.ogg")
 bg_misic.set_volume(0.05)
 
@@ -147,19 +146,27 @@ mixer.pause()
 bg_misic_menu.play(-1)
 
 reload_sound = mixer.Sound("sounds/recharge.ogg")
+reload_sound.set_volume(0.3)
 
 fire_sound = mixer.Sound("sounds/fire.ogg")
-fire_sound.set_volume(0.1)
+fire_sound.set_volume(0.3)
 
 damage_sound = mixer.Sound("sounds/damage.mp3")
-damage_sound.set_volume(0.5)
+damage_sound.set_volume(0.3)
 
 skip_sound = mixer.Sound("sounds/skip.mp3")
+skip_sound.set_volume(0.8)
+skip_sound2 = mixer.Sound("sounds/skip_2.mp3")
+skip_sound2.set_volume(0.02)
+
 
 font.init()
 font1 = font.SysFont('Aria', 30)
 
 txt_gameover = font1.render("GAME OVER", True, (255, 20, 20))
+
+txt_loudness_music = font1.render("гучність музики :", True, (180, 245, 245))
+txt_game_sound = font1.render("гучність звуків гри :", True, (180, 245, 245))
 
 while game:
     if screen == 'game':
@@ -220,8 +227,14 @@ while game:
                 if btn_restart.rect.collidepoint(mouse_click):
                     restart(monsters, asteroids)
 
+                    score = 0
+                    lost = 0
+
                 if btn_menu.rect.collidepoint(mouse_click):
                     restart(monsters, asteroids)
+                    score = 0
+                    lost = 0
+
                     screen = 'menu'
                     mixer.pause()
                     bg_misic_menu.play()
@@ -295,14 +308,45 @@ while game:
                 game = False
 
         window.blit(menu_background, (0, 0))
+        window.blit(txt_loudness_music, (460, 40))
+        window.blit(txt_game_sound, (460, 180))
 
         btn_back.reset()
+        btn_save.reset()
+
+        music_output.setText(round(music_loudness.getValue(), 2))
+        game_sound_output.setText(round(game_sound_loudness.getValue(), 2))
+
+        pygame_widgets.update(e)
 
         if e.type == MOUSEBUTTONDOWN:
             mouse_click = e.pos
             if btn_back.rect.collidepoint(mouse_click):
                 screen = 'menu'
+                skip_sound.play()
 
+            if btn_save.rect.collidepoint(mouse_click):
+                bg_misic_menu.set_volume(round(music_loudness.getValue(), 2))
+                bg_misic.set_volume(round(music_loudness.getValue(), 2))
+                skip_sound2.play()
+
+                reload_sound.set_volume(round(game_sound_loudness.getValue(), 2))
+                fire_sound.set_volume(round(game_sound_loudness.getValue(), 2))
+                damage_sound.set_volume(round(game_sound_loudness.getValue(), 2))
+
+        mouse_pos = mouse.get_pos()
+        mouse_x = mouse_pos[0]
+        mouse_y = mouse_pos[1]
+
+        if btn_save.rect.collidepoint(mouse_pos):
+            btn_save = GameSprite('menu/save_2.png', 30, 430, 110, 30, 0)
+        else:
+            btn_save = GameSprite('menu/save.png', 30, 430, 110, 30, 0)
+
+        if btn_back.rect.collidepoint(mouse_pos):
+            btn_back = GameSprite('menu/back_button_2.png', 10, 10, 55, 40, 0)
+        else:
+            btn_back = GameSprite('menu/back_button.png', 10, 10, 55, 40, 0)
 
 
     display.update()

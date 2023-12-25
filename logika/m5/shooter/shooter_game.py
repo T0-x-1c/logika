@@ -9,12 +9,32 @@ from time import time as timer
 import pygame_widgets
 from pygame_widgets.slider import Slider
 from pygame_widgets.textbox import TextBox
+import json
+
+with open('settings.json', 'r', encoding='utf-8') as set_file:
+    settings = json.load(set_file)
 
 pygame.init()
 mixer.init()
 
+'''змінні'''
 lost = 0
 score = 0
+
+win_width = 700
+win_height = 500
+
+finish = False
+game = True
+reload = False
+
+screen = 'menu'
+
+FPS = 60
+
+def save_setting():
+    with open('settings.json', 'w', encoding='utf-8') as set_file:
+        json.dump(settings, set_file, ensure_ascii=False, sort_keys=True, indent=4)
 
 def restart(monsters, asteroids):
     monsters.empty()
@@ -32,7 +52,6 @@ def restart(monsters, asteroids):
     ship.hp = 3
     ship.ammunition = 10
 
-
 class GameSprite(sprite.Sprite):
     def __init__(self, player_image, player_x, player_y, player_width, player_height, player_speed):
         super().__init__()
@@ -47,8 +66,6 @@ class GameSprite(sprite.Sprite):
 
     def reset(self):
         window.blit(self.image, (self.rect.x, self.rect.y))
-
-bullets = sprite.Group()
 
 class Player(GameSprite):
     def __init__(self, player_image, player_x, player_y, player_width, player_height, player_speed, ammunition, hp):
@@ -74,8 +91,8 @@ class Enemy(GameSprite):
     def update(self, pass_counted):
         self.rect.y += self.speed
         global lost
-        if self.rect.y > win_height + 100:
-            self.rect.y = -100
+        if self.rect.y > win_height:
+            self.rect.y = 0
             self.rect.x = randint(0, win_width - 100)
             if pass_counted:
                 lost += 1
@@ -86,35 +103,14 @@ class Bullet(GameSprite):
         if self.rect.y < 0:
             self.kill()
 
-
-win_width = 700
-win_height = 500
 window = display.set_mode((win_width, win_height))
-
-background = scale(load("picture/galaxy.jpg"), (win_width, win_height))
+bullets = sprite.Group()
 ship = Player("picture/rocket.png", 320, win_height-120, 80, 100, 5, 10, 3)
 
-menu_background = scale(load("menu/bg_menu.png"), (win_width, win_height))
-btn_play = GameSprite('menu/play.png', 280, 170, 145, 50, 0)
-btn_setting = GameSprite('menu/setting.png', 280, 240, 145, 45, 0)
-btn_quit = GameSprite('menu/quit.png', 280, 300, 145, 50, 0)
-
-btn_restart = GameSprite('menu/restart.png', 270, 300, 145, 40, 0)
-btn_menu = GameSprite('menu/menu.png', 290, 350, 110, 30, 0)
-
-btn_back = GameSprite('menu/back_button.png', 10, 10, 55, 40, 0)
-btn_save = GameSprite('menu/save.png', 30, 430, 110, 30, 0)
-
-music_loudness = Slider(window, 470, 100, 150, 10, min=0, max=1, step=0.01, handleColour = (180, 245, 245), handleRadius=15)
-music_loudness.setValue(0.05)
-music_output = TextBox(window, 460, 130, 50, 30, fontSize=20)
-music_output.disable()
-
-game_sound_loudness = Slider(window, 470, 220, 150, 10, min=0, max=1, step=0.01, handleColour = (180, 245, 245), handleRadius=15)
-game_sound_loudness.setValue(0.3)
-game_sound_output = TextBox(window, 460, 250, 50, 30, fontSize=20)
-game_sound_output.disable()
-
+'''об'єкти для гри'''
+background = scale(load("picture/galaxy.jpg"), (win_width, win_height))
+ship = Player("picture/rocket.png", 320, win_height-120, 80, 100, 5, 10, 3)
+bullet = Bullet("picture/bullet.png", 1, 1, 20, 20, 15)
 
 monsters = sprite.Group()
 for i in range(4):
@@ -126,40 +122,57 @@ for i in range(4):
     ast = Enemy("picture/asteroid.png", randint(0, win_width-100), -100, 50, 50, randint(1,5))
     asteroids.add(ast)
 
-finish = False
-game = True
-reload = False
+'''об'єкти для меню'''
+menu_background = scale(load("menu/bg_menu.png"), (win_width, win_height))
+btn_play = GameSprite('menu/play.png', 280, 170, 145, 50, 0)
+btn_setting = GameSprite('menu/setting.png', 280, 240, 145, 45, 0)
+btn_quit = GameSprite('menu/quit.png', 280, 300, 145, 50, 0)
 
-screen = 'menu'
+btn_restart = GameSprite('menu/restart.png', 270, 300, 145, 40, 0)
+btn_menu = GameSprite('menu/menu.png', 290, 350, 110, 30, 0)
+
+btn_back = GameSprite('menu/back_button.png', 10, 10, 55, 40, 0)
+btn_save = GameSprite('menu/save.png', 30, 430, 110, 30, 0)
+
+'''об'єкти для налаштувань'''
+music_loudness = Slider(window, 470, 100, 150, 5, min=0, max=1, step=0.01, handleColour = (180, 245, 245), handleRadius=8)
+music_loudness.setValue(settings["music_loudness"])
+music_output = TextBox(window, 460, 130, 50, 30, fontSize=20)
+music_output.disable()
+
+game_sound_loudness = Slider(window, 470, 220, 150, 5, min=0, max=1, step=0.01, handleColour = (180, 245, 245), handleRadius=8)
+game_sound_loudness.setValue(settings["game_sound_loudness"])
+game_sound_output = TextBox(window, 460, 250, 50, 30, fontSize=20)
+game_sound_output.disable()
 
 clock = time.Clock()
-FPS = 60
 
+'''звуки'''
 bg_misic = mixer.Sound("sounds\space.ogg")
-bg_misic.set_volume(0.05)
+bg_misic.set_volume(settings["music_loudness"])
 
 bg_misic_menu = mixer.Sound("sounds/bg_music.mp3")
-bg_misic_menu.set_volume(0.05)
+bg_misic_menu.set_volume(settings["music_loudness"])
 
 bg_misic.play(-1)
 mixer.pause()
 bg_misic_menu.play(-1)
 
-reload_sound = mixer.Sound("sounds/recharge.ogg")
-reload_sound.set_volume(0.3)
+reload_sound = mixer.Sound("sounds/recharge.mp3")
+reload_sound.set_volume(settings["game_sound_loudness"])
 
 fire_sound = mixer.Sound("sounds/fire.ogg")
-fire_sound.set_volume(0.3)
+fire_sound.set_volume(settings["game_sound_loudness"])
 
 damage_sound = mixer.Sound("sounds/damage.mp3")
-damage_sound.set_volume(0.3)
+damage_sound.set_volume(settings["game_sound_loudness"])
 
 skip_sound = mixer.Sound("sounds/skip.mp3")
 skip_sound.set_volume(0.8)
 skip_sound2 = mixer.Sound("sounds/skip_2.mp3")
-skip_sound2.set_volume(0.02)
+skip_sound2.set_volume(0.05)
 
-
+'''тексти'''
 font.init()
 font1 = font.SysFont('Aria', 30)
 
@@ -167,6 +180,8 @@ txt_gameover = font1.render("GAME OVER", True, (255, 20, 20))
 
 txt_loudness_music = font1.render("гучність музики :", True, (180, 245, 245))
 txt_game_sound = font1.render("гучність звуків гри :", True, (180, 245, 245))
+
+
 
 while game:
     if screen == 'game':
@@ -334,6 +349,10 @@ while game:
                 fire_sound.set_volume(round(game_sound_loudness.getValue(), 2))
                 damage_sound.set_volume(round(game_sound_loudness.getValue(), 2))
 
+                settings["game_sound_loudness"] = round(game_sound_loudness.getValue(), 2)
+                settings["music_loudness"] = round(music_loudness.getValue(), 2)
+                save_setting()
+
         mouse_pos = mouse.get_pos()
         mouse_x = mouse_pos[0]
         mouse_y = mouse_pos[1]
@@ -347,7 +366,6 @@ while game:
             btn_back = GameSprite('menu/back_button_2.png', 10, 10, 55, 40, 0)
         else:
             btn_back = GameSprite('menu/back_button.png', 10, 10, 55, 40, 0)
-
 
     display.update()
     clock.tick(FPS)

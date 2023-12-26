@@ -1,4 +1,9 @@
 {
+    "ammo_price": 100,
+    "ammunition": 10,
     "game_sound_loudness": 0.3,
-    "music_loudness": 0.05
+    "hp": 3,
+    "hp_price": 140,
+    "music_loudness": 0.05,
+    "score": 0
 }

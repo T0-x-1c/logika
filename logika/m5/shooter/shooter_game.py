@@ -27,6 +27,7 @@ win_height = 500
 finish = False
 game = True
 reload = False
+shop_open = False
 
 screen = 'menu'
 
@@ -105,11 +106,10 @@ class Bullet(GameSprite):
 
 window = display.set_mode((win_width, win_height))
 bullets = sprite.Group()
-ship = Player("picture/rocket.png", 320, win_height-120, 80, 100, 5, 10, 3)
 
 '''об'єкти для гри'''
 background = scale(load("picture/galaxy.jpg"), (win_width, win_height))
-ship = Player("picture/rocket.png", 320, win_height-120, 80, 100, 5, 10, 3)
+ship = Player("picture/rocket.png", 320, win_height-120, 80, 100, 5, settings["ammunition"], settings["hp"])
 bullet = Bullet("picture/bullet.png", 1, 1, 20, 20, 15)
 
 monsters = sprite.Group()
@@ -133,6 +133,11 @@ btn_menu = GameSprite('menu/menu.png', 290, 350, 110, 30, 0)
 
 btn_back = GameSprite('menu/back_button.png', 10, 10, 55, 40, 0)
 btn_save = GameSprite('menu/save.png', 30, 430, 110, 30, 0)
+
+shop_ico = GameSprite('shop/shop_ico.png', 530, 180, 170, 170, 0)
+shop = GameSprite('shop/shop.png', 100, 70, 500, 360, 0)
+shop_ammo = GameSprite('shop/ammo.png', 170, 170, 100, 160, 0)
+shop_hp = GameSprite('shop/hp.png', 300, 170, 100, 160, 0)
 
 '''об'єкти для налаштувань'''
 music_loudness = Slider(window, 470, 100, 150, 5, min=0, max=1, step=0.01, handleColour = (180, 245, 245), handleRadius=8)
@@ -172,6 +177,9 @@ skip_sound.set_volume(0.8)
 skip_sound2 = mixer.Sound("sounds/skip_2.mp3")
 skip_sound2.set_volume(0.05)
 
+fail_sound = mixer.Sound("sounds/fail.mp3")
+fail_sound.set_volume(0.3)
+
 '''тексти'''
 font.init()
 font1 = font.SysFont('Aria', 30)
@@ -180,8 +188,6 @@ txt_gameover = font1.render("GAME OVER", True, (255, 20, 20))
 
 txt_loudness_music = font1.render("гучність музики :", True, (180, 245, 245))
 txt_game_sound = font1.render("гучність звуків гри :", True, (180, 245, 245))
-
-
 
 while game:
     if screen == 'game':
@@ -200,7 +206,7 @@ while game:
 
 
         txt_lose = font1.render(f"Пропущено :{lost}", True, (255, 255, 255))
-        txt_score = font1.render(f"Рахунок :{score}", True, (255, 255, 255))
+        txt_score = font1.render(f'Рахунок :{settings["score"]}', True, (255, 255, 255))
         txt_ammo = font1.render(f"ammo : {ship.ammunition}", True, (230, 230, 230))
         txt_hp = font1.render(f"hp : {ship.hp}", True, (230, 230, 230))
 
@@ -221,7 +227,8 @@ while game:
         ship.update()
 
         if sprite.groupcollide(bullets, monsters, True, True):
-            score += 1
+            settings["score"] += 1
+            save_setting()
             en = Enemy("picture/ufo.png", randint(0, win_width - 100), -100, 100, 60, randint(1, 3))
             monsters.add(en)
 
@@ -242,12 +249,10 @@ while game:
                 if btn_restart.rect.collidepoint(mouse_click):
                     restart(monsters, asteroids)
 
-                    score = 0
                     lost = 0
 
                 if btn_menu.rect.collidepoint(mouse_click):
                     restart(monsters, asteroids)
-                    score = 0
                     lost = 0
 
                     screen = 'menu'
@@ -262,7 +267,7 @@ while game:
                 window.blit(txt_reload, (200, 350))
 
             else:
-                ship.ammunition = 10
+                ship.ammunition = settings["ammunition"]
                 reload = False
                 reload_sound.play(1)
 
@@ -278,10 +283,47 @@ while game:
         btn_setting.reset()
         btn_quit.reset()
 
+        shop_ico.reset()
+
         mouse_pos = mouse.get_pos()
         mouse_x = mouse_pos[0]
         mouse_y = mouse_pos[1]
 
+        if shop_open:
+            shop.reset()
+            shop_ammo.reset()
+            shop_hp.reset()
+
+            txt_ammo_price = font1.render(f'{settings["ammo_price"]}', True, (255,255,255))
+            txt_hp_price = font1.render(f'{settings["hp_price"]}', True, (255,255,255))
+            txt_score = font1.render(f'{settings["score"]}', True, (255,255,255))
+
+            window.blit(txt_ammo_price, (210, 302))
+            window.blit(txt_hp_price, (340, 302))
+            window.blit(txt_score, (230, 387))
+            if e.type == MOUSEBUTTONDOWN:
+                mouse_click = e.pos
+                if shop_ammo.rect.collidepoint(mouse_click):
+                    if settings["score"] >= settings["ammo_price"]:
+                        settings["score"] -= settings["ammo_price"]
+                        settings["ammunition"] += 1
+                        settings["ammo_price"] = round(settings["ammo_price"] * 1.2)
+                        ship.ammunition = settings["ammunition"]
+                        save_setting()
+                        skip_sound2.play()
+                    else:
+                        fail_sound.play()
+
+                if shop_hp.rect.collidepoint(mouse_click):
+                    if settings["score"] >= settings["hp_price"]:
+                        settings["score"] -= settings["hp_price"]
+                        settings["hp"] += 1
+                        settings["hp_price"] = round(settings["hp_price"] * 1.2)
+                        ship.hp = settings["hp"]
+                        save_setting()
+                        skip_sound2.play()
+                    else:
+                        fail_sound.play()
 
         if btn_play.rect.collidepoint(mouse_pos):
             btn_play = GameSprite('menu/play_2.png', 280,170,145, 50,0)
@@ -298,8 +340,13 @@ while game:
         else:
             btn_quit = GameSprite('menu/quit.png', 280,300,145, 50,0)
 
+        if shop_ico.rect.collidepoint(mouse_pos):
+            shop_ico = GameSprite('shop/shop_ico_2.png', 530, 180, 170, 170, 0)
+        else:
+            shop_ico = GameSprite('shop/shop_ico.png', 530, 180, 170, 170, 0)
 
-        if e.type == MOUSEBUTTONDOWN:
+
+        if e.type == MOUSEBUTTONDOWN and not shop_open:
             mouse_click = e.pos
             if btn_play.rect.collidepoint(mouse_click):
                 bg_misic_menu.stop()
@@ -315,6 +362,9 @@ while game:
 
             if btn_quit.rect.collidepoint(mouse_click):
                 game = False
+
+            if shop_ico.rect.collidepoint(mouse_click):
+                shop_open = True
 
 
     if screen == 'setting':

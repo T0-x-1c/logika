@@ -277,6 +277,30 @@ while game:
             if e.type == QUIT:
                 game = False
 
+            if e.type == MOUSEBUTTONDOWN:
+                mouse_click = e.pos
+                if shop_ammo.rect.collidepoint(mouse_click) and shop_open:
+                    if settings["score"] >= settings["ammo_price"]:
+                        settings["score"] -= settings["ammo_price"]
+                        settings["ammunition"] += 1
+                        settings["ammo_price"] = round(settings["ammo_price"] * 1.2)
+                        ship.ammunition = settings["ammunition"]
+                        save_setting()
+                        skip_sound2.play()
+                    else:
+                        fail_sound.play()
+
+                if shop_hp.rect.collidepoint(mouse_click):
+                    if settings["score"] >= settings["hp_price"]:
+                        settings["score"] -= settings["hp_price"]
+                        settings["hp"] += 1
+                        settings["hp_price"] = round(settings["hp_price"] * 1.2)
+                        ship.hp = settings["hp"]
+                        save_setting()
+                        skip_sound2.play()
+                    else:
+                        fail_sound.play()
+
         window.blit(menu_background, (0, 0))
 
         btn_play.reset()
@@ -301,29 +325,7 @@ while game:
             window.blit(txt_ammo_price, (210, 302))
             window.blit(txt_hp_price, (340, 302))
             window.blit(txt_score, (230, 387))
-            if e.type == MOUSEBUTTONDOWN:
-                mouse_click = e.pos
-                if shop_ammo.rect.collidepoint(mouse_click):
-                    if settings["score"] >= settings["ammo_price"]:
-                        settings["score"] -= settings["ammo_price"]
-                        settings["ammunition"] += 1
-                        settings["ammo_price"] = round(settings["ammo_price"] * 1.2)
-                        ship.ammunition = settings["ammunition"]
-                        save_setting()
-                        skip_sound2.play()
-                    else:
-                        fail_sound.play()
 
-                if shop_hp.rect.collidepoint(mouse_click):
-                    if settings["score"] >= settings["hp_price"]:
-                        settings["score"] -= settings["hp_price"]
-                        settings["hp"] += 1
-                        settings["hp_price"] = round(settings["hp_price"] * 1.2)
-                        ship.hp = settings["hp"]
-                        save_setting()
-                        skip_sound2.play()
-                    else:
-                        fail_sound.play()
 
         if btn_play.rect.collidepoint(mouse_pos):
             btn_play = GameSprite('menu/play_2.png', 280,170,145, 50,0)

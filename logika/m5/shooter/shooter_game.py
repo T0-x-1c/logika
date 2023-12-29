@@ -136,6 +136,7 @@ btn_save = GameSprite('menu/save.png', 30, 430, 110, 30, 0)
 
 shop_ico = GameSprite('shop/shop_ico.png', 530, 180, 170, 170, 0)
 shop = GameSprite('shop/shop.png', 100, 70, 500, 360, 0)
+shop_close = GameSprite('shop/shop_close.png', 540, 110, 50, 50, 0)
 shop_ammo = GameSprite('shop/ammo.png', 170, 170, 100, 160, 0)
 shop_hp = GameSprite('shop/hp.png', 300, 170, 100, 160, 0)
 
@@ -279,7 +280,7 @@ while game:
 
             if e.type == MOUSEBUTTONDOWN:
                 mouse_click = e.pos
-                if shop_ammo.rect.collidepoint(mouse_click) and shop_open:
+                if shop_ammo.rect.collidepoint(mouse_click) and shop_open and settings["ammunition"] < 25:
                     if settings["score"] >= settings["ammo_price"]:
                         settings["score"] -= settings["ammo_price"]
                         settings["ammunition"] += 1
@@ -290,7 +291,7 @@ while game:
                     else:
                         fail_sound.play()
 
-                if shop_hp.rect.collidepoint(mouse_click):
+                if shop_hp.rect.collidepoint(mouse_click) and shop_open and settings["hp"] < 20:
                     if settings["score"] >= settings["hp_price"]:
                         settings["score"] -= settings["hp_price"]
                         settings["hp"] += 1
@@ -300,6 +301,9 @@ while game:
                         skip_sound2.play()
                     else:
                         fail_sound.play()
+
+                if shop_close.rect.collidepoint(mouse_click) and shop_open:
+                    shop_open = False
 
         window.blit(menu_background, (0, 0))
 
@@ -315,6 +319,8 @@ while game:
 
         if shop_open:
             shop.reset()
+            shop_close.reset()
+
             shop_ammo.reset()
             shop_hp.reset()
 
@@ -322,10 +328,18 @@ while game:
             txt_hp_price = font1.render(f'{settings["hp_price"]}', True, (255,255,255))
             txt_score = font1.render(f'{settings["score"]}', True, (255,255,255))
 
-            window.blit(txt_ammo_price, (210, 302))
-            window.blit(txt_hp_price, (340, 302))
+            if settings["ammunition"] < 25:
+                window.blit(txt_ammo_price, (210, 302))
+            if settings["hp"] < 20:
+                window.blit(txt_hp_price, (340, 302))
             window.blit(txt_score, (230, 387))
 
+
+            if settings["hp"] == 20:
+                shop_hp = GameSprite('shop/shop_max.png', 300, 170, 100, 160, 0)
+
+            if settings["ammunition"] == 25:
+                shop_ammo = GameSprite('shop/shop_max.png', 170, 170, 100, 160, 0)
 
         if btn_play.rect.collidepoint(mouse_pos):
             btn_play = GameSprite('menu/play_2.png', 280,170,145, 50,0)

@@ -104,6 +104,28 @@ class Bullet(GameSprite):
         if self.rect.y < 0:
             self.kill()
 
+class Hp_recovery(GameSprite):
+    def update(self, obj, sound):
+        if randint(1,600) == 1:
+            self.speed = 5
+
+        self.reset()
+        self.rect.y += self.speed
+
+        if sprite.collide_rect(obj, self):
+            self.rect.y = -50
+            self.rect.x = randint(0, win_width - 35)
+            self.speed = 0
+
+            obj.hp += 1
+            sound.play()
+
+        if self.rect.y > win_height:
+            self.rect.y = -50
+            self.rect.x = randint(0, win_width - 35)
+            self.speed = 0
+
+
 window = display.set_mode((win_width, win_height))
 bullets = sprite.Group()
 
@@ -111,6 +133,7 @@ bullets = sprite.Group()
 background = scale(load("picture/galaxy.jpg"), (win_width, win_height))
 ship = Player("picture/rocket.png", 320, win_height-120, 80, 100, 5, settings["ammunition"], settings["hp"])
 bullet = Bullet("picture/bullet.png", 1, 1, 20, 20, 15)
+hp_recovery = Hp_recovery("picture/hp_reload.png", randint(0, win_width - 35), -50, 35, 35, 0)
 
 monsters = sprite.Group()
 for i in range(4):
@@ -220,7 +243,7 @@ while game:
         asteroids.draw(window)
         bullets.draw(window)
         ship.reset()
-
+        hp_recovery.update(ship, skip_sound2)
 
         monsters.update(True)
         asteroids.update(False)
@@ -414,6 +437,8 @@ while game:
                 reload_sound.set_volume(round(game_sound_loudness.getValue(), 2))
                 fire_sound.set_volume(round(game_sound_loudness.getValue(), 2))
                 damage_sound.set_volume(round(game_sound_loudness.getValue(), 2))
+                skip_sound2.set_volume(round(game_sound_loudness.getValue(), 2)/5)
+                skip_sound.set_volume(round(game_sound_loudness.getValue(), 2)*2)
 
                 settings["game_sound_loudness"] = round(game_sound_loudness.getValue(), 2)
                 settings["music_loudness"] = round(music_loudness.getValue(), 2)

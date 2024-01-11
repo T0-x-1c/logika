@@ -28,6 +28,7 @@ finish = False
 game = True
 reload = False
 shop_open = False
+GameOver = False
 
 screen = 'menu'
 
@@ -50,8 +51,9 @@ def restart(monsters, asteroids):
         asteroids.add(ast)
 
     ship.rect.x = 320
-    ship.hp = 3
-    ship.ammunition = 10
+    ship.hp = settings["hp"]
+    ship.ammunition = settings["ammunition"]
+    ship.ammunition2 = settings["ast_ammunition"]
 
 class GameSprite(sprite.Sprite):
     def __init__(self, player_image, player_x, player_y, player_width, player_height, player_speed):
@@ -69,9 +71,10 @@ class GameSprite(sprite.Sprite):
         window.blit(self.image, (self.rect.x, self.rect.y))
 
 class Player(GameSprite):
-    def __init__(self, player_image, player_x, player_y, player_width, player_height, player_speed, ammunition, hp):
+    def __init__(self, player_image, player_x, player_y, player_width, player_height, player_speed, ammunition, ammunition2, hp):
         super().__init__(player_image, player_x, player_y, player_width, player_height, player_speed)
         self.ammunition = ammunition
+        self.ammunition2 = ammunition2
         self.hp = hp
 
     def update(self):
@@ -86,6 +89,11 @@ class Player(GameSprite):
         bullet = Bullet("picture/bullet.png", self.rect.x+30, win_height-140, 20, 20, 15)
         bullets.add(bullet)
         self.ammunition -= 1
+
+    def fire2(self):
+        bullet_ast = Bullet("picture/bullet_for_asteroid.png", self.rect.x+30, win_height-140, 35, 35, 12)
+        bullets_ast.add(bullet_ast)
+        self.ammunition2 -= 1
 
 
 class Enemy(GameSprite):
@@ -106,10 +114,9 @@ class Bullet(GameSprite):
 
 class Hp_recovery(GameSprite):
     def update(self, obj, sound):
-        if randint(1,600) == 1:
+        if randint(1,500) == 1 and not GameOver:
             self.speed = 5
 
-        self.reset()
         self.rect.y += self.speed
 
         if sprite.collide_rect(obj, self):
@@ -128,11 +135,14 @@ class Hp_recovery(GameSprite):
 
 window = display.set_mode((win_width, win_height))
 bullets = sprite.Group()
+bullets_ast = sprite.Group()
 
 '''об'єкти для гри'''
 background = scale(load("picture/galaxy.jpg"), (win_width, win_height))
-ship = Player("picture/rocket.png", 320, win_height-120, 80, 100, 5, settings["ammunition"], settings["hp"])
+ship = Player("picture/rocket.png", 320, win_height-120, 80, 100, 5, settings["ammunition"], settings["ast_ammunition"], settings["hp"])
 bullet = Bullet("picture/bullet.png", 1, 1, 20, 20, 15)
+bullet_ast = Bullet("picture/bullet_for_asteroid.png", 1, 1, 20, 20, 15)
+bullet_for_ast = Bullet("picture/bullet.png", 1, 1, 20, 20, 15)
 hp_recovery = Hp_recovery("picture/hp_reload.png", randint(0, win_width - 35), -50, 35, 35, 0)
 
 monsters = sprite.Group()
@@ -161,7 +171,8 @@ shop_ico = GameSprite('shop/shop_ico.png', 530, 180, 170, 170, 0)
 shop = GameSprite('shop/shop.png', 100, 70, 500, 360, 0)
 shop_close = GameSprite('shop/shop_close.png', 540, 110, 50, 50, 0)
 shop_ammo = GameSprite('shop/ammo.png', 170, 170, 100, 160, 0)
-shop_hp = GameSprite('shop/hp.png', 300, 170, 100, 160, 0)
+shop_ammo_ast = GameSprite('shop/asteroid_ammo.png', 300, 170, 100, 160, 0)
+shop_hp = GameSprite('shop/hp.png', 430, 170, 100, 160, 0)
 
 '''об'єкти для налаштувань'''
 music_loudness = Slider(window, 470, 100, 150, 5, min=0, max=1, step=0.01, handleColour = (180, 245, 245), handleRadius=8)
@@ -218,8 +229,8 @@ while game:
         for e in event.get():
             if e.type == QUIT:
                 game = False
-            if e.type == KEYDOWN:
-                if e.key == K_f:
+            if e.type == MOUSEBUTTONDOWN:
+                if e.button == 1 and not GameOver:
                     if ship.ammunition > 0 and not reload:
                         ship.fire()
                         fire_sound.play()
@@ -227,27 +238,40 @@ while game:
                     if ship.ammunition == 0 and not reload:
                         reload = True
                         start_reload = timer()
+                if e.button == 3 and not GameOver:
+                    if ship.ammunition2 > 0 and not reload:
+                        ship.fire2()
+                        fire_sound.play()
+
+                    if ship.ammunition2 == 0 and not reload:
+                        reload = True
+                        start_reload = timer()
 
 
         txt_lose = font1.render(f"Пропущено :{lost}", True, (255, 255, 255))
         txt_score = font1.render(f'Рахунок :{settings["score"]}', True, (255, 255, 255))
         txt_ammo = font1.render(f"ammo : {ship.ammunition}", True, (230, 230, 230))
+        txt_ast_ammo = font1.render(f"big_ammo : {ship.ammunition2}", True, (230, 230, 230))
         txt_hp = font1.render(f"hp : {ship.hp}", True, (230, 230, 230))
 
         window.blit(background,(0,0))
         window.blit(txt_lose, (0,0))
         window.blit(txt_score, (0,40))
-        window.blit(txt_ammo, (600,0))
-        window.blit(txt_hp, (600,40))
+        window.blit(txt_ammo, (550,0))
+        window.blit(txt_ast_ammo, (550,40))
+        window.blit(txt_hp, (550,80))
         monsters.draw(window)
         asteroids.draw(window)
         bullets.draw(window)
+        bullets_ast.draw(window)
+        hp_recovery.reset()
         ship.reset()
-        hp_recovery.update(ship, skip_sound2)
 
+        hp_recovery.update(ship, skip_sound2)
         monsters.update(True)
         asteroids.update(False)
         bullets.update()
+        bullets_ast.update()
         ship.update()
 
         if sprite.groupcollide(bullets, monsters, True, True):
@@ -260,7 +284,15 @@ while game:
             ship.hp -= 1
             damage_sound.play()
 
+            ast = Enemy("picture/asteroid.png", randint(0, win_width - 100), -100, 50, 50, randint(1, 5))
+            asteroids.add(ast)
+
+        if sprite.groupcollide(bullets_ast, asteroids, True, True):
+            ast = Enemy("picture/asteroid.png", randint(0, win_width - 100), -100, 50, 50, randint(1, 5))
+            asteroids.add(ast)
+
         if ship.hp <= 0 or lost >= 5:
+            GameOver = True
             monsters.empty()
             asteroids.empty()
 
@@ -274,6 +306,7 @@ while game:
                     restart(monsters, asteroids)
 
                     lost = 0
+                    GameOver = False
 
                 if btn_menu.rect.collidepoint(mouse_click):
                     restart(monsters, asteroids)
@@ -314,6 +347,17 @@ while game:
                     else:
                         fail_sound.play()
 
+                if shop_ammo_ast.rect.collidepoint(mouse_click) and shop_open and settings["ast_ammunition"] < 15:
+                    if settings["score"] >= settings["ast_ammo_price"]:
+                        settings["score"] -= settings["ast_ammo_price"]
+                        settings["ast_ammunition"] += 1
+                        settings["ast_ammo_price"] = round(settings["ast_ammo_price"] * 1.2)
+                        ship.ammunition2 = settings["ast_ammunition"]
+                        save_setting()
+                        skip_sound2.play()
+                    else:
+                        fail_sound.play()
+
                 if shop_hp.rect.collidepoint(mouse_click) and shop_open and settings["hp"] < 20:
                     if settings["score"] >= settings["hp_price"]:
                         settings["score"] -= settings["hp_price"]
@@ -345,24 +389,31 @@ while game:
             shop_close.reset()
 
             shop_ammo.reset()
+            shop_ammo_ast.reset()
             shop_hp.reset()
 
             txt_ammo_price = font1.render(f'{settings["ammo_price"]}', True, (255,255,255))
+            txt_ast_ammo_price = font1.render(f'{settings["ast_ammo_price"]}', True, (255,255,255))
             txt_hp_price = font1.render(f'{settings["hp_price"]}', True, (255,255,255))
             txt_score = font1.render(f'{settings["score"]}', True, (255,255,255))
 
             if settings["ammunition"] < 25:
                 window.blit(txt_ammo_price, (210, 302))
+            if settings["ast_ammunition"] < 15:
+                window.blit(txt_ast_ammo_price, (340, 302))
             if settings["hp"] < 20:
-                window.blit(txt_hp_price, (340, 302))
+                window.blit(txt_hp_price, (470, 302))
             window.blit(txt_score, (230, 387))
 
 
             if settings["hp"] == 20:
-                shop_hp = GameSprite('shop/shop_max.png', 300, 170, 100, 160, 0)
+                shop_hp = GameSprite('shop/shop_max.png', 430, 170, 100, 160, 0)
 
             if settings["ammunition"] == 25:
                 shop_ammo = GameSprite('shop/shop_max.png', 170, 170, 100, 160, 0)
+
+            if settings["ast_ammunition"] == 15:
+                shop_ammo_ast = GameSprite('shop/shop_max.png', 300, 170, 100, 160, 0)
 
         if btn_play.rect.collidepoint(mouse_pos):
             btn_play = GameSprite('menu/play_2.png', 280,170,145, 50,0)

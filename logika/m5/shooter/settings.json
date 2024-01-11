@@ -1,9 +1,11 @@
 {
-    "ammo_price": 100,
+    "ammo_price": 120,
     "ammunition": 10,
+    "ast_ammo_price": 120,
+    "ast_ammunition": 5,
     "game_sound_loudness": 0.3,
     "hp": 3,
     "hp_price": 140,
     "music_loudness": 0.05,
-    "score": 0
+    "score": 61
 }

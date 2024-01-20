@@ -31,6 +31,7 @@ shop_open = False
 GameOver = False
 
 screen = 'menu'
+shop_page = 1
 
 FPS = 60
 
@@ -38,7 +39,7 @@ def save_setting():
     with open('settings.json', 'w', encoding='utf-8') as set_file:
         json.dump(settings, set_file, ensure_ascii=False, sort_keys=True, indent=4)
 
-def restart(monsters, asteroids):
+def restart(monsters, asteroids, reload):
     monsters.empty()
     asteroids.empty()
 
@@ -54,6 +55,7 @@ def restart(monsters, asteroids):
     ship.hp = settings["hp"]
     ship.ammunition = settings["ammunition"]
     ship.ammunition2 = settings["ast_ammunition"]
+    reload = False
 
 class GameSprite(sprite.Sprite):
     def __init__(self, player_image, player_x, player_y, player_width, player_height, player_speed):
@@ -139,7 +141,7 @@ bullets_ast = sprite.Group()
 
 '''об'єкти для гри'''
 background = scale(load("picture/galaxy.jpg"), (win_width, win_height))
-ship = Player("picture/rocket.png", 320, win_height-120, 80, 100, 5, settings["ammunition"], settings["ast_ammunition"], settings["hp"])
+ship = Player(f'picture/{settings["last_rocket"]}.png', 320, win_height-120, 80, 100, 5, settings["ammunition"], settings["ast_ammunition"], settings["hp"])
 bullet = Bullet("picture/bullet.png", 1, 1, 20, 20, 15)
 bullet_ast = Bullet("picture/bullet_for_asteroid.png", 1, 1, 20, 20, 15)
 bullet_for_ast = Bullet("picture/bullet.png", 1, 1, 20, 20, 15)
@@ -156,7 +158,7 @@ for i in range(4):
     asteroids.add(ast)
 
 '''об'єкти для меню'''
-menu_background = scale(load("menu/bg_menu.png"), (win_width, win_height))
+menu_background = scale(load(f'menu/{settings["last_bg"]}.png'), (win_width, win_height))
 btn_play = GameSprite('menu/play.png', 280, 170, 145, 50, 0)
 btn_setting = GameSprite('menu/setting.png', 280, 240, 145, 45, 0)
 btn_quit = GameSprite('menu/quit.png', 280, 300, 145, 50, 0)
@@ -168,11 +170,22 @@ btn_back = GameSprite('menu/back_button.png', 10, 10, 55, 40, 0)
 btn_save = GameSprite('menu/save.png', 30, 430, 110, 30, 0)
 
 shop_ico = GameSprite('shop/shop_ico.png', 530, 180, 170, 170, 0)
-shop = GameSprite('shop/shop.png', 100, 70, 500, 360, 0)
+shop = GameSprite('shop/shop_page1.png', 100, 70, 500, 360, 0)
 shop_close = GameSprite('shop/shop_close.png', 540, 110, 50, 50, 0)
-shop_ammo = GameSprite('shop/ammo.png', 170, 170, 100, 160, 0)
-shop_ammo_ast = GameSprite('shop/asteroid_ammo.png', 300, 170, 100, 160, 0)
-shop_hp = GameSprite('shop/hp.png', 430, 170, 100, 160, 0)
+shop_next = GameSprite('shop/shop_next.png', 548, 235, 50, 50, 0)
+shop_back = GameSprite('shop/shop_back.png', 102, 235, 50, 50, 0)
+
+shop_ammo = GameSprite('shop/ammo.png', 168, 170, 120, 150, 0)
+shop_ammo_ast = GameSprite('shop/asteroid_ammo.png', 291, 170, 120, 150, 0)
+shop_hp = GameSprite('shop/hp.png', 414, 170, 120, 150, 0)
+
+shop_bg_n1 = GameSprite('shop/background_№1.png', 168, 170, 120, 150, 0)
+shop_bg_n2 = GameSprite('shop/background_№2.png', 291, 170, 120, 150, 0)
+shop_bg_n3 = GameSprite('shop/background_№3.png', 414, 170, 120, 150, 0)
+
+shop_rocket_1 = GameSprite('shop/rocket_1.png', 168, 170, 120, 150, 0)
+shop_rocket_2 = GameSprite('shop/rocket_2.png', 291, 170, 120, 150, 0)
+shop_rocket_3 = GameSprite('shop/rocket_3.png', 414, 170, 120, 150, 0)
 
 '''об'єкти для налаштувань'''
 music_loudness = Slider(window, 470, 100, 150, 5, min=0, max=1, step=0.01, handleColour = (180, 245, 245), handleRadius=8)
@@ -218,6 +231,7 @@ fail_sound.set_volume(0.3)
 '''тексти'''
 font.init()
 font1 = font.SysFont('Aria', 30)
+font2 = font.SysFont('Comic Sans', 18)
 
 txt_gameover = font1.render("GAME OVER", True, (255, 20, 20))
 
@@ -267,7 +281,8 @@ while game:
         hp_recovery.reset()
         ship.reset()
 
-        hp_recovery.update(ship, skip_sound2)
+        if not GameOver:
+            hp_recovery.update(ship, skip_sound2)
         monsters.update(True)
         asteroids.update(False)
         bullets.update()
@@ -303,15 +318,16 @@ while game:
             if e.type == MOUSEBUTTONDOWN:
                 mouse_click = e.pos
                 if btn_restart.rect.collidepoint(mouse_click):
-                    restart(monsters, asteroids)
+                    restart(monsters, asteroids, reload)
 
                     lost = 0
                     GameOver = False
 
                 if btn_menu.rect.collidepoint(mouse_click):
-                    restart(monsters, asteroids)
+                    restart(monsters, asteroids, reload)
                     lost = 0
 
+                    GameOver = False
                     screen = 'menu'
                     mixer.pause()
                     bg_misic_menu.play()
@@ -325,6 +341,7 @@ while game:
 
             else:
                 ship.ammunition = settings["ammunition"]
+                ship.ammunition2 = settings["ast_ammunition"]
                 reload = False
                 reload_sound.play(1)
 
@@ -334,9 +351,18 @@ while game:
             if e.type == QUIT:
                 game = False
 
+
             if e.type == MOUSEBUTTONDOWN:
                 mouse_click = e.pos
-                if shop_ammo.rect.collidepoint(mouse_click) and shop_open and settings["ammunition"] < 25:
+                if shop_next.rect.collidepoint(mouse_click) and shop_page < 3 and shop_open:
+                    shop_page += 1
+                    shop = GameSprite(f'shop/shop_page{shop_page}.png', 100, 70, 500, 360, 0)
+
+                if shop_back.rect.collidepoint(mouse_click) and shop_page > 1 and shop_open:
+                    shop_page -=1
+                    shop = GameSprite(f'shop/shop_page{shop_page}.png', 100, 70, 500, 360, 0)
+
+                if shop_ammo.rect.collidepoint(mouse_click) and shop_open and shop_page == 1 and settings["ammunition"] < 25:
                     if settings["score"] >= settings["ammo_price"]:
                         settings["score"] -= settings["ammo_price"]
                         settings["ammunition"] += 1
@@ -347,7 +373,7 @@ while game:
                     else:
                         fail_sound.play()
 
-                if shop_ammo_ast.rect.collidepoint(mouse_click) and shop_open and settings["ast_ammunition"] < 15:
+                if shop_ammo_ast.rect.collidepoint(mouse_click) and shop_open and shop_page == 1 and settings["ast_ammunition"] < 15:
                     if settings["score"] >= settings["ast_ammo_price"]:
                         settings["score"] -= settings["ast_ammo_price"]
                         settings["ast_ammunition"] += 1
@@ -358,7 +384,7 @@ while game:
                     else:
                         fail_sound.play()
 
-                if shop_hp.rect.collidepoint(mouse_click) and shop_open and settings["hp"] < 20:
+                if shop_hp.rect.collidepoint(mouse_click) and shop_open and shop_page == 1 and settings["hp"] < 20:
                     if settings["score"] >= settings["hp_price"]:
                         settings["score"] -= settings["hp_price"]
                         settings["hp"] += 1
@@ -368,6 +394,91 @@ while game:
                         skip_sound2.play()
                     else:
                         fail_sound.play()
+
+                if shop_bg_n2.rect.collidepoint(mouse_click) and shop_page == 2 and shop_open and not settings["bg2_bought"]:
+                    if settings["score"] >= 250:
+                        settings["score"] -= 250
+                        settings["bg2_bought"] = True
+                        skip_sound2.play()
+                        menu_background = scale(load("menu/bg_menu_2.png"), (win_width, win_height))
+                        settings["last_bg"] = "bg_menu_2"
+                        skip_sound2.play()
+                        save_setting()
+                    else:
+                        fail_sound.play()
+
+                if shop_bg_n3.rect.collidepoint(mouse_click) and shop_page == 2 and shop_open and not settings["bg3_bought"]:
+                    if settings["score"] >= 300:
+                        settings["score"] -= 300
+                        settings["bg3_bought"] = True
+                        skip_sound2.play()
+                        menu_background = scale(load("menu/bg_menu_3.png"), (win_width, win_height))
+                        settings["last_bg"] = "bg_menu_3"
+                        skip_sound2.play()
+                        save_setting()
+                    else:
+                        fail_sound.play()
+
+
+                if shop_bg_n1.rect.collidepoint(mouse_click) and shop_page == 2 and shop_open and settings["bg1_bought"]:
+                    menu_background = scale(load("menu/bg_menu.png"), (win_width, win_height))
+                    settings["last_bg"] = "bg_menu"
+                    skip_sound.play()
+                    save_setting()
+
+                if shop_bg_n2.rect.collidepoint(mouse_click) and shop_page == 2 and shop_open and settings["bg2_bought"]:
+                    menu_background = scale(load("menu/bg_menu_2.png"), (win_width, win_height))
+                    settings["last_bg"] = "bg_menu_2"
+                    skip_sound.play()
+                    save_setting()
+
+                if shop_bg_n3.rect.collidepoint(mouse_click) and shop_page == 2 and shop_open and settings["bg3_bought"]:
+                    menu_background = scale(load("menu/bg_menu_3.png"), (win_width, win_height))
+                    settings["last_bg"] = "bg_menu_3"
+                    skip_sound.play()
+                    save_setting()
+
+
+                if shop_rocket_2.rect.collidepoint(mouse_click) and shop_page == 3 and shop_open and not settings["rocket2_bought"]:
+                    if settings["score"] >= 250:
+                        settings["score"] -= 250
+                        settings["rocket2_bought"] = True
+                        ship = Player("picture/rocket2.png", 320, win_height-120, 80, 100, 5, settings["ammunition"], settings["ast_ammunition"], settings["hp"])
+                        settings["last_rocket"] = "rocket2"
+                        skip_sound2.play()
+                        save_setting()
+                    else:
+                        fail_sound.play()
+
+                if shop_rocket_3.rect.collidepoint(mouse_click) and shop_page == 3 and shop_open and not settings["rocket3_bought"]:
+                    if settings["score"] >= 300:
+                        settings["score"] -= 300
+                        settings["rocket3_bought"] = True
+                        ship = Player("picture/rocket3.png", 320, win_height-120, 80, 100, 5, settings["ammunition"], settings["ast_ammunition"], settings["hp"])
+                        settings["last_rocket"] = "rocket3"
+                        skip_sound2.play()
+                        save_setting()
+                    else:
+                        fail_sound.play()
+
+
+                if shop_rocket_1.rect.collidepoint(mouse_click) and shop_page == 3 and shop_open and settings["rocket1_bought"]:
+                    ship = Player("picture/rocket.png", 320, win_height - 120, 80, 100, 5, settings["ammunition"], settings["ast_ammunition"], settings["hp"])
+                    settings["last_rocket"] = "rocket"
+                    skip_sound.play()
+                    save_setting()
+
+                if shop_rocket_2.rect.collidepoint(mouse_click) and shop_page == 3 and shop_open and settings["rocket2_bought"]:
+                    ship = Player("picture/rocket2.png", 320, win_height - 120, 80, 100, 5, settings["ammunition"], settings["ast_ammunition"], settings["hp"])
+                    settings["last_rocket"] = "rocket2"
+                    skip_sound.play()
+                    save_setting()
+
+                if shop_rocket_3.rect.collidepoint(mouse_click) and shop_page == 3 and shop_open and settings["rocket3_bought"]:
+                    ship = Player("picture/rocket3.png", 320, win_height - 120, 80, 100, 5, settings["ammunition"], settings["ast_ammunition"], settings["hp"])
+                    settings["last_rocket"] = "rocket3"
+                    skip_sound.play()
+                    save_setting()
 
                 if shop_close.rect.collidepoint(mouse_click) and shop_open:
                     shop_open = False
@@ -388,32 +499,108 @@ while game:
             shop.reset()
             shop_close.reset()
 
-            shop_ammo.reset()
-            shop_ammo_ast.reset()
-            shop_hp.reset()
+            txt_score = font2.render(f'{settings["score"]}', True, (255, 255, 255))
+            window.blit(txt_score, (230, 382))
 
-            txt_ammo_price = font1.render(f'{settings["ammo_price"]}', True, (255,255,255))
-            txt_ast_ammo_price = font1.render(f'{settings["ast_ammo_price"]}', True, (255,255,255))
-            txt_hp_price = font1.render(f'{settings["hp_price"]}', True, (255,255,255))
-            txt_score = font1.render(f'{settings["score"]}', True, (255,255,255))
+            if shop_page == 1:
+                shop_next.reset()
 
-            if settings["ammunition"] < 25:
-                window.blit(txt_ammo_price, (210, 302))
-            if settings["ast_ammunition"] < 15:
-                window.blit(txt_ast_ammo_price, (340, 302))
-            if settings["hp"] < 20:
-                window.blit(txt_hp_price, (470, 302))
-            window.blit(txt_score, (230, 387))
+                shop_ammo.reset()
+                shop_ammo_ast.reset()
+                shop_hp.reset()
+
+                txt_ammo_price = font2.render(f'{settings["ammo_price"]}', True, (255,255,255))
+                txt_ast_ammo_price = font2.render(f'{settings["ast_ammo_price"]}', True, (255,255,255))
+                txt_hp_price = font2.render(f'{settings["hp_price"]}', True, (255,255,255))
+
+                if settings["ammunition"] < 25:
+                    window.blit(txt_ammo_price, (215, 288))
+                else:
+                    shop_ammo = GameSprite('shop/shop_max.png', 170, 170, 100, 160, 0)
+                if settings["ast_ammunition"] < 15:
+                    window.blit(txt_ast_ammo_price, (340, 288))
+                else:
+                    shop_ammo_ast = GameSprite('shop/shop_max.png', 300, 170, 100, 160, 0)
+                if settings["hp"] < 20:
+                    window.blit(txt_hp_price, (460, 288))
+                else:
+                    shop_hp = GameSprite('shop/shop_max.png', 430, 170, 100, 160, 0)
 
 
-            if settings["hp"] == 20:
-                shop_hp = GameSprite('shop/shop_max.png', 430, 170, 100, 160, 0)
+            if shop_page == 2:
+                shop_back.reset()
+                shop_next.reset()
 
-            if settings["ammunition"] == 25:
-                shop_ammo = GameSprite('shop/shop_max.png', 170, 170, 100, 160, 0)
+                shop_bg_n1.reset()
+                shop_bg_n2.reset()
+                shop_bg_n3.reset()
 
-            if settings["ast_ammunition"] == 15:
-                shop_ammo_ast = GameSprite('shop/shop_max.png', 300, 170, 100, 160, 0)
+
+                if not settings["bg1_bought"]:
+                    txt_bg_n1_price = font2.render('200', True, (255,255,255))
+                elif settings["bg1_bought"]:
+                    if settings["last_bg"] == "bg_menu":
+                        txt_bg_n1_price = font2.render('selected', True, (255,255,255))
+                    else:
+                        txt_bg_n1_price = font2.render('bought', True, (255, 255, 255))
+
+                if not settings["bg2_bought"]:
+                    txt_bg_n2_price = font2.render('250', True, (255,255,255))
+                elif settings["bg2_bought"]:
+                    if settings["last_bg"] == "bg_menu_2":
+                        txt_bg_n2_price = font2.render('selected', True, (255, 255, 255))
+                    else:
+                        txt_bg_n2_price = font2.render('bought', True, (255, 255, 255))
+
+                if not settings["bg3_bought"]:
+                    txt_bg_n3_price = font2.render('300', True, (255,255,255))
+                elif settings["bg3_bought"]:
+                    if settings["last_bg"] == "bg_menu_3":
+                        txt_bg_n3_price = font2.render('selected', True, (255, 255, 255))
+                    else:
+                        txt_bg_n3_price = font2.render('bought', True, (255, 255, 255))
+
+
+                window.blit(txt_bg_n1_price, (215, 288))
+                window.blit(txt_bg_n2_price, (338, 288))
+                window.blit(txt_bg_n3_price, (461, 288))
+
+            if shop_page == 3:
+                shop_back.reset()
+
+                shop_rocket_1.reset()
+                shop_rocket_2.reset()
+                shop_rocket_3.reset()
+
+                if not settings["rocket1_bought"]:
+                    txt_rocket_n1_price = font2.render('200', True, (255,255,255))
+                elif settings["rocket1_bought"]:
+                    if settings["last_rocket"] == "rocket":
+                        txt_rocket_n1_price = font2.render('selected', True, (255,255,255))
+                    else:
+                        txt_rocket_n1_price = font2.render('bought', True, (255, 255, 255))
+
+                if not settings["rocket2_bought"]:
+                    txt_rocket_n2_price = font2.render('250', True, (255,255,255))
+                elif settings["rocket2_bought"]:
+                    if settings["last_rocket"] == "rocket2":
+                        txt_rocket_n2_price = font2.render('selected', True, (255, 255, 255))
+                    else:
+                        txt_rocket_n2_price = font2.render('bought', True, (255, 255, 255))
+
+                if not settings["rocket3_bought"]:
+                    txt_rocket_n3_price = font2.render('300', True, (255,255,255))
+                elif settings["rocket3_bought"]:
+                    if settings["last_rocket"] == "rocket3":
+                        txt_rocket_n3_price = font2.render('selected', True, (255, 255, 255))
+                    else:
+                        txt_rocket_n3_price = font2.render('bought', True, (255, 255, 255))
+
+                window.blit(txt_rocket_n1_price, (215, 288))
+                window.blit(txt_rocket_n2_price, (338, 288))
+                window.blit(txt_rocket_n3_price, (461, 288))
+
+
 
         if btn_play.rect.collidepoint(mouse_pos):
             btn_play = GameSprite('menu/play_2.png', 280,170,145, 50,0)
@@ -430,7 +617,7 @@ while game:
         else:
             btn_quit = GameSprite('menu/quit.png', 280,300,145, 50,0)
 
-        if shop_ico.rect.collidepoint(mouse_pos):
+        if shop_ico.rect.collidepoint(mouse_pos) and not shop_open:
             shop_ico = GameSprite('shop/shop_ico_2.png', 530, 180, 170, 170, 0)
         else:
             shop_ico = GameSprite('shop/shop_ico.png', 530, 180, 170, 170, 0)
@@ -444,6 +631,7 @@ while game:
                 mixer.unpause()
 
                 screen = 'game'
+                restart(monsters, asteroids, reload)
 
             if btn_setting.rect.collidepoint(mouse_click):
                 skip_sound.play()

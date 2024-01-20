@@ -1,11 +1,19 @@
 {
-    "ammo_price": 120,
-    "ammunition": 10,
+    "ammo_price": 1856,
+    "ammunition": 25,
     "ast_ammo_price": 120,
     "ast_ammunition": 5,
-    "game_sound_loudness": 0.3,
+    "bg1_bought": true,
+    "bg2_bought": true,
+    "bg3_bought": true,
+    "game_sound_loudness": 0.2,
     "hp": 3,
     "hp_price": 140,
-    "music_loudness": 0.05,
-    "score": 61
+    "last_bg": "bg_menu_3",
+    "last_rocket": "rocket3",
+    "music_loudness": 0.01,
+    "rocket1_bought": true,
+    "rocket2_bought": true,
+    "rocket3_bought": true,
+    "score": 90274
 }

@@ -9,11 +9,11 @@
     "game_sound_loudness": 0.2,
     "hp": 3,
     "hp_price": 140,
-    "last_bg": "bg_menu_3",
-    "last_rocket": "rocket3",
+    "last_bg": "bg_menu",
+    "last_rocket": "rocket",
     "music_loudness": 0.01,
     "rocket1_bought": true,
     "rocket2_bought": true,
     "rocket3_bought": true,
-    "score": 90274
+    "score": 90294
 }
